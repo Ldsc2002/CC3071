@@ -17,5 +17,4 @@ def testRun():
     test.printTree()
 
     print('\nTest 3: NFA')
-    # NFA(test.tree).createImage()
-    NFA(RegexTree('ab|').tree).createImage()
+    NFA(test.tree).createImage()
