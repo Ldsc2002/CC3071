@@ -26,103 +26,21 @@ class NFA(Automata):
             return this
 
         if node.value == '*':
+            leftFragment = this.subsetConstruction(node.left)
             initial = State(str(this.counter))
             final = State(str(this.counter + 1))
+
             this.counter += 1
 
             this.states.add(initial)
             this.states.add(final)
 
-            this.transitions.add(Transition(initial, final, Symbol('')))
+            this.transitions.add(Transition(initial, leftFragment.initial, Symbol('epsilon')))
+            this.transitions.add(Transition(leftFragment.final.peekLast(), final, Symbol('epsilon')))
             this.transitions.add(Transition(initial, final, Symbol('epsilon')))
             this.transitions.add(Transition(final, initial, Symbol('epsilon')))
 
-            this.symbols.add('epsilon')
-            this.final.add(final)
-
-            this.initial = initial
-
-            return this
-
-        if node.value == '+':
-            initial = State(str(this.counter))
-            final = State(str(this.counter + 1))
-            this.counter += 1
-
-            this.states.add(initial)
-            this.states.add(final)
-
-            this.transitions.add(Transition(initial, final, Symbol('epsilon')))
-
-            this.symbols.add('epsilon')
-            this.final.add(final)
-
-            this.initial = initial
-
-            return this
-        
-        if node.value == '|':
-            initial = State(str(this.counter))
-            final = State(str(this.counter + 1))
-            this.counter += 1
-
-            this.states.add(initial)
-            this.states.add(final)
-
-            this.transitions.add(Transition(initial, final, Symbol('epsilon')))
-
-            this.symbols.add('epsilon')
-            this.final.add(final)
-
-            this.initial = initial
-
-            return this
-        
-        if node.value == '.':
-            initial = State(str(this.counter))
-            final = State(str(this.counter + 1))
-            this.counter += 1
-
-            this.states.add(initial)
-            this.states.add(final)
-
-            this.transitions.add(Transition(initial, final, Symbol('epsilon')))
-
-            this.symbols.add('epsilon')
-            this.final.add(final)
-
-            this.initial = initial
-
-            return this
-        
-        if node.value == '?':
-            initial = State(str(this.counter))
-            final = State(str(this.counter + 1))
-            this.counter += 1
-
-            this.states.add(initial)
-            this.states.add(final)
-
-            this.transitions.add(Transition(initial, final, Symbol('epsilon')))
-
-            this.symbols.add('epsilon')
-            this.final.add(final)
-
-            this.initial = initial
-
-            return this
-        
-        if node.value == 'epsilon':
-            initial = State(str(this.counter))
-            final = State(str(this.counter + 1))
-            this.counter += 1
-
-            this.states.add(initial)
-            this.states.add(final)
-
-            this.transitions.add(Transition(initial, final, Symbol('epsilon')))
-
-            this.symbols.add('epsilon')
+            this.symbols.add('')
             this.final.add(final)
 
             this.initial = initial

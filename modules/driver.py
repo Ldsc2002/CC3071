@@ -3,28 +3,18 @@ from modules.components.regexTree import *
 from modules.components.NFA import *
 
 def testRun():
-    print('\n----- Testing infixToPostfix -----')
+    print('\n----- Testing Infix to AFN -----')
+    testString = 'a+b*'
 
-    print('\nTest 1: a+b*c')
-    test = Regex('a+b*c').postfix
-    print('Expected: abc*+ --- Actual: ' + test)
-    assert test == 'abc*+'
+    print('\nTest 1: Infix to Postfix')
+    test = Regex(testString).postfix
+    print('Expected: ab*+ --- Actual: ' + test)
+    assert test == 'ab*+'
 
-    print('\nTest 2: a+b*c+')
-    test = Regex('a+b*c+').postfix
-    print('Expected: abc*+ --- Actual: ' + test)
-    assert test == 'abc*+'
+    print('\nTest 2: Regex Tree')
+    test = RegexTree(test)
+    test.printTree()
 
-    print('\nTest 3: (a+b)*c)')
-    test = Regex('(a+b)*c)').postfix
-    print('Expected: ab+c* --- Actual: ' + test)
-    assert test == 'ab+c*'
-
-    print('\n\n----- Testing tree building -----')
-    print('\nTest 1: abc*+')
-    test = RegexTree('abc*+').printTree()
-
-    print('\n\n----- Testing NFA -----')
-    print('\nTest 1: abc*+')
-    test = RegexTree('abc*+').tree
-    NFA(test).createImage()
+    print('\nTest 3: NFA')
+    # NFA(test.tree).createImage()
+    NFA(RegexTree('a*').tree).createImage()

@@ -39,7 +39,8 @@ class Regex():
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'E'
         ]
 
-        symbols = ['*', '+', '?', '.', '|']
+        symbols = ['+', '.', '|']
+        unary = ['*', '?']
 
         openParen = 0
         closeParen = 0
@@ -49,7 +50,7 @@ class Regex():
             elif c == ')':
                 closeParen += 1
 
-            if c not in alphabet and c not in symbols and c != '(' and c != ')':
+            if c not in alphabet and c not in symbols and c not in unary and c != '(' and c != ')':
                 raise ValueError(
                     "Invalid character in infix expression: " + c)
 
