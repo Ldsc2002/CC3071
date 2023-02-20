@@ -1,5 +1,6 @@
 from modules.components.regex import *
 from modules.components.regexTree import *
+from modules.components.NFA import *
 
 def testRun():
     print('\n----- Testing infixToPostfix -----')
@@ -22,3 +23,8 @@ def testRun():
     print('\n\n----- Testing tree building -----')
     print('\nTest 1: abc*+')
     test = RegexTree('abc*+').printTree()
+
+    print('\n\n----- Testing NFA -----')
+    print('\nTest 1: abc*+')
+    test = RegexTree('a').tree
+    NFA(test).createImage()
