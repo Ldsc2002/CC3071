@@ -23,7 +23,7 @@ class RegexTree():
             elif token == '*':
                 left = stack.pop()
                 stack.append(Node('*', left))
-            elif token == '+':
+            elif token == '+': 
                 left = stack.pop()
                 stack.append(Node('+', left))
             else:

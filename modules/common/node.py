@@ -7,17 +7,20 @@ class Node(object):
         this.left = left
         this.right = right
     
-    def printTree(this, graph):
-        thisNode = pydot.Node(this.character)
+    def printTree(this, graph, id = 0):
+        thisNode = pydot.Node(id, label = this.character)
         graph.add_node(thisNode)
+        id += 1
 
         if this.left is not None:
-            this.left.printTree(graph)
-            graph.add_edge(pydot.Edge(thisNode, this.left.character))
+            this.left.printTree(graph, id)
+            graph.add_edge(pydot.Edge(thisNode, id))
+            id += 1
 
         if this.right is not None:
-            this.right.printTree(graph)
-            graph.add_edge(pydot.Edge(thisNode, this.right.character))
+            this.right.printTree(graph, id)
+            graph.add_edge(pydot.Edge(thisNode, id))
+            id += 1
 
     def __getattribute__(this, name: str):
         if name == 'value':

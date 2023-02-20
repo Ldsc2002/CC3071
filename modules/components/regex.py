@@ -20,7 +20,9 @@ class Regex():
                 stack.pop()
             elif c in specials:
                 while stack and stack[-1] != '(' and specials.get(
-                        c, 0) <= specials.get(stack[-1], 0):
+                    # TODO check if this is correct
+                    # c, 0) <= specials.get(stack[-1], 0):
+                        c, 0) < specials.get(stack[-1], 0):
                     pofix = pofix + stack.pop()
 
                 stack.append(c)
@@ -39,20 +41,52 @@ class Regex():
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'E'
         ]
 
-        symbols = ['.', '|']
+        symbols = ['|', '.']
         unary = ['*', '?', '+']
+        newInfix = ''
+
+        for x in range(len(infix)):
+            if x > 0 and infix[x - 1] in alphabet and infix[x] in alphabet:
+                newInfix = newInfix + '.'
+
+            newInfix = newInfix + infix[x]
+
+        infix = newInfix
 
         openParen = 0
         closeParen = 0
+        expectedParam = 0
+        params = 0
+        lastSymbol = ''
+        
         for c in infix:
             if c == '(':
                 openParen += 1
+
             elif c == ')':
                 closeParen += 1
 
-            if c not in alphabet and c not in symbols and c not in unary and c != '(' and c != ')':
+            elif c in symbols:
+                expectedParam += 1
+                lastSymbol = c
+
+            elif c in unary:
+                expectedParam += 1
+                lastSymbol = c
+
+            elif c in alphabet:
+                params += 1
+
+            elif c not in alphabet and c not in symbols and c not in unary and c != '(' and c != ')':
                 raise ValueError(
                     "Invalid character in infix expression: " + c)
+
+        if lastSymbol in symbols:
+            expectedParam += 1
+            
+        if params != expectedParam:
+            raise ValueError(
+                "Invalid number of parameters in infix expression")
 
         if openParen != closeParen:
             if openParen > closeParen:
