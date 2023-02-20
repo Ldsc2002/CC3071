@@ -4,7 +4,7 @@ from modules.common.transition import *
 from modules.common.node import *
 from modules.common.set import *
 
-import graphviz as gv
+from graphviz import Digraph
 
 class Automata():
     def __init__(this, initial = State(), states = Set(), final = Set(), symbols = Set(), transitions = Set()):
@@ -23,14 +23,17 @@ class Automata():
         this.transitions = transitions
 
     def createImage(this):
-        from graphviz import Digraph
-
         g = Digraph('AFN', filename= 'out/Automata', format='png')
+        g.attr(rankdir='LR')
 
         for state in this.states:
             if state in this.final:
                 g.node(str(state.id), label=str(state.id), shape='doublecircle')
             else:
+                if state == this.initial:
+                    g.node("", shape='none', width='0', height='0')
+                    g.edge("", str(state.id))
+                    
                 g.node(str(state.id), label=str(state.id), shape='circle')
 
         for transition in this.transitions:
