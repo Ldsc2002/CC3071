@@ -1,3 +1,6 @@
-from modules.driver import testRun
+from modules.driver import generateNFA, textInput
 
-testRun()
+if __name__ == '__main__':
+    regex = textInput("Please enter a regular expression: ")
+
+    generateNFA(regex)

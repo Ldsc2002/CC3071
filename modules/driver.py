@@ -1,6 +1,19 @@
 from modules.components.regex import *
 from modules.components.regexTree import *
 from modules.components.NFA import *
+from modules.common.utils import *
+
+def generateNFA(regex):
+    print("\n ----- Generating NFA -----")
+    print("Infix: " + regex)
+
+    postfix = Regex(regex).postfix
+    print("Postfix: " + postfix)
+
+    tree = RegexTree(postfix)
+    tree.printTree()
+
+    NFA(tree.tree).createImage()
 
 def testRun():
     print('\n----- Testing Infix to AFN -----')
