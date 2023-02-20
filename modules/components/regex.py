@@ -62,6 +62,8 @@ class Regex():
         while True:
             if infix[-1] in symbols:
                 infix = infix[:-1]
+            if infix[0] in symbols:
+                infix = infix[1:]
             else:
                 break
 
