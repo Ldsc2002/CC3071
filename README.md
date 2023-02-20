@@ -1,1 +1,1 @@
-Utilizar E como épsilon
+Use E as epsilon
