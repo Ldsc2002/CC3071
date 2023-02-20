@@ -39,8 +39,8 @@ class Regex():
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'E'
         ]
 
-        symbols = ['+', '.', '|']
-        unary = ['*', '?']
+        symbols = ['.', '|']
+        unary = ['*', '?', '+']
 
         openParen = 0
         closeParen = 0

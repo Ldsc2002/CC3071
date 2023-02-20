@@ -4,12 +4,13 @@ from modules.components.NFA import *
 
 def testRun():
     print('\n----- Testing Infix to AFN -----')
-    testString = 'a+b*'
+    testString = 'a|b'
+    correctString = 'ab|'
 
     print('\nTest 1: Infix to Postfix')
     test = Regex(testString).postfix
-    print('Expected: ab*+ --- Actual: ' + test)
-    assert test == 'ab*+'
+    print('Expected: ' + correctString + ' --- Actual: ' + test)
+    assert test == correctString
 
     print('\nTest 2: Regex Tree')
     test = RegexTree(test)
@@ -17,4 +18,4 @@ def testRun():
 
     print('\nTest 3: NFA')
     # NFA(test.tree).createImage()
-    NFA(RegexTree('a*').tree).createImage()
+    NFA(RegexTree('ab|').tree).createImage()

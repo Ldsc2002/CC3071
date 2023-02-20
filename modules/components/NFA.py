@@ -17,32 +17,42 @@ class NFA(Automata):
             this.states.add(final)
 
             this.transitions.add(Transition(initial, final, Symbol(node.value)))
-            
-            this.symbols.add(node.value)
-            this.final.add(final)
 
             this.initial = initial
+            this.final.add(final)
+            
+            this.symbols.add(node.value)
 
             return this
 
-        if node.value == '*':
-            leftFragment = this.subsetConstruction(node.left)
+        elif node.value == '|':
             initial = State(str(this.counter))
-            final = State(str(this.counter + 1))
-
+            this.states.add(initial)
             this.counter += 1
 
-            this.states.add(initial)
+            left = this.subsetConstruction(node.left)
+            this.transitions.add(Transition(initial, left.initial, Symbol('ε')))
+
+            final = State(str(this.counter + 1))
             this.states.add(final)
+            this.counter += 1
 
-            this.transitions.add(Transition(initial, leftFragment.initial, Symbol('epsilon')))
-            this.transitions.add(Transition(leftFragment.final.peekLast(), final, Symbol('epsilon')))
-            this.transitions.add(Transition(initial, final, Symbol('epsilon')))
-            this.transitions.add(Transition(final, initial, Symbol('epsilon')))
+            right = this.subsetConstruction(node.right)
+            this.transitions.add(Transition(initial, right.initial, Symbol('ε')))
 
-            this.symbols.add('')
-            this.final.add(final)
+            if len(this.final) > 0:
+                newFinal = State(str(this.counter + 1))
+                this.states.add(newFinal)
+                this.counter += 1
+                
+                for x in range(len(this.final)):
+                    this.transitions.add(Transition(this.final.pop(), newFinal, Symbol('ε')))
+
+                this.final.add(newFinal)
+
 
             this.initial = initial
+
+            this.symbols.add('ε')
 
             return this

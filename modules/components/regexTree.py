@@ -13,10 +13,6 @@ class RegexTree():
                 right = stack.pop()
                 left = stack.pop()
                 stack.append(Node('.', left, right))
-            elif token == '+':
-                right = stack.pop()
-                left = stack.pop()
-                stack.append(Node('+', left, right))
             elif token == '|':
                 right = stack.pop()
                 left = stack.pop()
@@ -27,6 +23,9 @@ class RegexTree():
             elif token == '*':
                 left = stack.pop()
                 stack.append(Node('*', left))
+            elif token == '+':
+                left = stack.pop()
+                stack.append(Node('+', left))
             else:
                 stack.append(Node(token))
         return stack.pop()
