@@ -7,7 +7,7 @@ from modules.common.set import *
 import graphviz as gv
 
 class Automata():
-    def __init__(this, initial, states = Set(), final = Set(), symbols = Set(), transitions = Set()):
+    def __init__(this, initial = State(), states = Set(), final = Set(), symbols = Set(), transitions = Set()):
         if (
             not isinstance(states, Set) 
             or not isinstance(final, Set) 
@@ -21,10 +21,6 @@ class Automata():
         this.symbols = symbols
         this.initial = initial
         this.transitions = transitions
-
-    def transition(this, state, symbol):
-        # TODO check implementation
-        return [t.target for t in this.transitions if t.source == state and t.symbol == symbol]
 
     def createImage(this):
         from graphviz import Digraph

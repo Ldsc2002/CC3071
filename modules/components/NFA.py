@@ -2,8 +2,9 @@ from modules.proto.automata import *
 
 class NFA(Automata):
     def __init__(this, startNode):
+        super().__init__()
+
         this.counter = 0
-        super().__init__(State(str(this.counter)))
         this.subsetConstruction(startNode)
 
     def subsetConstruction(this, node):
