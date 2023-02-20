@@ -1,5 +1,6 @@
 from modules.common.set import *
 from modules.common.state import *
+import graphviz as gv
 
 class Automata():
     def __init__(this, states, final, symbols, initial, transitions = []):
@@ -19,3 +20,7 @@ class Automata():
     def transition(this, state, symbol):
         # TODO check implementation
         return [t.target for t in this.transitions if t.source == state and t.symbol == symbol]
+
+    def createImage():
+        # TODO
+        pass
