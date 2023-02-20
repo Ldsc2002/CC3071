@@ -38,6 +38,6 @@ class Automata():
                 g.node(str(state.id), label=str(state.id), shape='circle')
 
         for transition in this.transitions:
-            g.edge(str(transition.source.id), str(transition.target.id), label=transition.symbol.id)
+            g.edge(str(transition.source.id), str(transition.target.id), label=transition.symbol.cid)
 
         g.view()

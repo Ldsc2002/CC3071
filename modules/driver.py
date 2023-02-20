@@ -26,5 +26,5 @@ def testRun():
 
     print('\n\n----- Testing NFA -----')
     print('\nTest 1: abc*+')
-    test = RegexTree('a').tree
+    test = RegexTree('abc*+').tree
     NFA(test).createImage()
