@@ -5,12 +5,12 @@ class NFA(Automata):
         super().__init__()
 
         this.counter = 0
-        initial, final = this.subsetConstruction(startNode)
+        initial, final = this.thompsonConstruction(startNode)
 
         this.initial = initial
         this.final.add(final)
 
-    def subsetConstruction(this, node):
+    def thompsonConstruction(this, node):
         if node.left is None and node.right is None:
             initial = State(str(this.counter))
             final = State(str(this.counter + 1))
@@ -29,12 +29,12 @@ class NFA(Automata):
             this.states.add(initial)
             this.counter += 1
 
-            leftInitial, leftFinal = this.subsetConstruction(node.left)
+            leftInitial, leftFinal = this.thompsonConstruction(node.left)
             this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
 
             this.counter += 1
 
-            rightInitial, rightFinal = this.subsetConstruction(node.right)
+            rightInitial, rightFinal = this.thompsonConstruction(node.right)
             this.transitions.add(Transition(initial, rightInitial, Symbol('ε')))
 
             finals = [leftFinal, rightFinal]
@@ -53,7 +53,7 @@ class NFA(Automata):
             this.states.add(initial)
             this.counter += 1
 
-            leftInitial, leftFinal = this.subsetConstruction(node.left)
+            leftInitial, leftFinal = this.thompsonConstruction(node.left)
 
             this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
             this.transitions.add(Transition(leftFinal, leftInitial, Symbol('ε')))
@@ -68,13 +68,13 @@ class NFA(Automata):
             this.symbols.add('ε')
 
         elif node.value == '+':
-            aInitial, aFinal = this.subsetConstruction(node.left)
+            aInitial, aFinal = this.thompsonConstruction(node.left)
 
             initial = State(str(this.counter))
             this.states.add(initial)
             this.counter += 1
 
-            leftInitial, leftFinal = this.subsetConstruction(node.left)
+            leftInitial, leftFinal = this.thompsonConstruction(node.left)
 
             this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
             this.transitions.add(Transition(leftFinal, leftInitial, Symbol('ε')))
@@ -94,12 +94,12 @@ class NFA(Automata):
             this.states.add(initial)
             this.counter += 1
 
-            leftInitial, leftFinal = this.subsetConstruction(node.left)
+            leftInitial, leftFinal = this.thompsonConstruction(node.left)
             this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
 
             this.counter += 1
 
-            rightInitial, rightFinal = this.subsetConstruction(Node('ε'))
+            rightInitial, rightFinal = this.thompsonConstruction(Node('ε'))
             this.transitions.add(Transition(initial, rightInitial, Symbol('ε')))
 
             finals = [leftFinal, rightFinal]
@@ -114,8 +114,8 @@ class NFA(Automata):
             this.symbols.add('ε')
 
         elif node.value == '.':
-            leftInitial, leftFinal = this.subsetConstruction(node.left)
-            rightInitial, rightFinal = this.subsetConstruction(node.right)
+            leftInitial, leftFinal = this.thompsonConstruction(node.left)
+            rightInitial, rightFinal = this.thompsonConstruction(node.right)
 
             initial = leftInitial
             final = rightFinal
