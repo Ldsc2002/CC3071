@@ -5,9 +5,10 @@ from modules.common.utils import *
 
 def generateNFA(regex):
     print("\n ----- Generating NFA -----")
-    print("Infix: " + regex)
+    print("Original Infix: " + regex)
 
     postfix = Regex(regex).postfix
+    print("Parsed Infix: " + Regex(regex).validatedInfix)
     print("Postfix: " + postfix)
 
     tree = RegexTree(postfix)

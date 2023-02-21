@@ -1,6 +1,7 @@
 class Regex():
     def __init__(this, infix):
         this.infix = infix
+        this.validatedInfix = None
         this.postfix = this.infixToPostfix(infix)
 
     def infixToPostfix(this, regex):
@@ -43,58 +44,62 @@ class Regex():
 
         symbols = ['|', '.']
         unary = ['*', '?', '+']
-        newInfix = ''
+        validForConcat = alphabet + ['(', ')'] + unary
 
-        # TODO fix this
+        # Add missing concatenation symbols
+        newInfix = ''
         for x in range(len(infix)):
-            if x > 0 and infix[x - 1] in alphabet and infix[x] in alphabet:
-                newInfix = newInfix + '.'
+            if x > 0 and x < len(infix):
+                if infix[x - 1] in alphabet and infix[x] in alphabet:
+                    newInfix = newInfix + '.'
+
+                elif infix[x - 1] in unary and infix[x] in alphabet:
+                    newInfix = newInfix + '.'
+
+                elif infix[x - 1] in alphabet and infix[x] == '(':
+                    newInfix = newInfix + '.'
 
             newInfix = newInfix + infix[x]
-
+        
         infix = newInfix
 
         openParen = 0
         closeParen = 0
-        expectedParam = 0
-        params = 0
-        lastSymbol = ''
-        
-        for c in infix:
+        closeBeforeOpen = False
+
+        for x in range(len(infix)):
+            c = infix[x]
+
+            if c in symbols:
+                if x == 0 or x == len(infix) - 1:
+                    raise ValueError("Regex cannot start or end with operator: " + c + " at index " + str(x))
+
+                elif infix[x - 1] not in validForConcat or infix[x + 1] not in validForConcat:
+                    raise ValueError("Invalid symbol in infix expression: " + c + " at index " + str(x))
+
+            elif c in unary:
+                if x == 0 or (x > 0 and infix[x - 1] not in validForConcat):
+                    raise ValueError("Invalid symbol in infix expression: " + c + " at index " + str(x))
+
+            if closeParen > openParen:
+                closeBeforeOpen = True
+
             if c == '(':
                 openParen += 1
 
             elif c == ')':
                 closeParen += 1
 
-            elif c in symbols:
-                expectedParam += 1
-                lastSymbol = c
-
-            elif c in unary:
-                expectedParam += 1
-                lastSymbol = c
-
-            elif c in alphabet:
-                params += 1
-
             elif c not in alphabet and c not in symbols and c not in unary and c != '(' and c != ')':
-                raise ValueError(
-                    "Invalid character in infix expression: " + c)
-
-        if lastSymbol in symbols:
-            expectedParam += 1
-            
-        # TODO fix this
-        # if (params != expectedParam and len(infix) > 1) or ((len(infix) == 1) and (infix[0] not in alphabet)):
-        #     raise ValueError(
-        #         "Invalid number of parameters in infix expression")
+                raise ValueError("Invalid character in infix expression: " + c)  
 
         if openParen != closeParen:
             if openParen > closeParen:
                 infix = infix + (openParen - closeParen) * ')'
             if closeParen > openParen:
                 infix = (closeParen - openParen) * '(' + infix
+        elif closeBeforeOpen:
+            raise ValueError("Invalid infix expression: close parenthesis before open parenthesis")
 
         while True:
             if infix[-1] in symbols:
@@ -104,6 +109,7 @@ class Regex():
             else:
                 break
 
+        this.validatedInfix = infix
         return infix
 
             
