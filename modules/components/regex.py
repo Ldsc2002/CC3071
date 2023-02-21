@@ -57,6 +57,9 @@ class Regex():
                 elif infix[x - 1] in alphabet and infix[x] == '(':
                     newInfix = newInfix + '.'
 
+                elif infix[x -1] == ')' and infix[x] == '(':
+                    newInfix = newInfix + '.'
+
             newInfix = newInfix + infix[x]
         
         infix = newInfix
