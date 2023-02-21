@@ -45,6 +45,7 @@ class Regex():
         unary = ['*', '?', '+']
         newInfix = ''
 
+        # TODO fix this
         for x in range(len(infix)):
             if x > 0 and infix[x - 1] in alphabet and infix[x] in alphabet:
                 newInfix = newInfix + '.'
@@ -84,9 +85,10 @@ class Regex():
         if lastSymbol in symbols:
             expectedParam += 1
             
-        if params != expectedParam:
-            raise ValueError(
-                "Invalid number of parameters in infix expression")
+        # TODO fix this
+        # if (params != expectedParam and len(infix) > 1) or ((len(infix) == 1) and (infix[0] not in alphabet)):
+        #     raise ValueError(
+        #         "Invalid number of parameters in infix expression")
 
         if openParen != closeParen:
             if openParen > closeParen:

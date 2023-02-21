@@ -5,7 +5,10 @@ class NFA(Automata):
         super().__init__()
 
         this.counter = 0
-        this.subsetConstruction(startNode)
+        initial, final = this.subsetConstruction(startNode)
+
+        this.initial = initial
+        this.final.add(final)
 
     def subsetConstruction(this, node):
         if node.left is None and node.right is None:
@@ -17,71 +20,31 @@ class NFA(Automata):
             this.states.add(final)
 
             this.transitions.add(Transition(initial, final, Symbol(node.value)))
-
-            this.initial = initial
-            this.final.add(final)
+            this.symbols.add(node.value)
             
             this.symbols.add(node.value)
-
-            return this
 
         elif node.value == '|':
             initial = State(str(this.counter))
             this.states.add(initial)
             this.counter += 1
 
-            left = this.subsetConstruction(node.left)
-            this.transitions.add(Transition(initial, left.initial, Symbol('ε')))
+            leftInitial, leftFinal = this.subsetConstruction(node.left)
+            this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
+
+            this.counter += 1
+
+            rightInitial, rightFinal = this.subsetConstruction(node.right)
+            this.transitions.add(Transition(initial, rightInitial, Symbol('ε')))
+
+            finals = [leftFinal, rightFinal]
 
             final = State(str(this.counter + 1))
             this.states.add(final)
             this.counter += 1
-
-            right = this.subsetConstruction(node.right)
-            this.transitions.add(Transition(initial, right.initial, Symbol('ε')))
-
-            if len(this.final) > 0:
-                newFinal = State(str(this.counter + 1))
-                this.states.add(newFinal)
-                this.counter += 1
-                
-                for x in range(len(this.final)):
-                    this.transitions.add(Transition(this.final.pop(), newFinal, Symbol('ε')))
-
-                this.final.add(newFinal)
-
-
-            this.initial = initial
-
-            this.symbols.add('ε')
-
-        elif node.value == '?':
-            initial = State(str(this.counter))
-            this.states.add(initial)
-            this.counter += 1
-
-            left = this.subsetConstruction(node.left)
-            this.transitions.add(Transition(initial, left.initial, Symbol('ε')))
-
-            final = State(str(this.counter + 1))
-            this.states.add(final)
-            this.counter += 1
-
-            right = this.subsetConstruction(Node('ε'))
-            this.transitions.add(Transition(initial, right.initial, Symbol('ε')))
-
-            if len(this.final) > 0:
-                newFinal = State(str(this.counter + 1))
-                this.states.add(newFinal)
-                this.counter += 1
-                
-                for x in range(len(this.final)):
-                    this.transitions.add(Transition(this.final.pop(), newFinal, Symbol('ε')))
-
-                this.final.add(newFinal)
-
-
-            this.initial = initial
+            
+            for x in range(len(finals)):
+                this.transitions.add(Transition(finals.pop(), final, Symbol('ε')))
 
             this.symbols.add('ε')
 
@@ -90,49 +53,71 @@ class NFA(Automata):
             this.states.add(initial)
             this.counter += 1
 
-            left = this.subsetConstruction(node.left)
-            this.transitions.add(Transition(initial, left.initial, Symbol('ε')))
-            this.transitions.add(Transition(left.final.peek(), left.initial, Symbol('ε')))
+            leftInitial, leftFinal = this.subsetConstruction(node.left)
+
+            this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
+            this.transitions.add(Transition(leftFinal, leftInitial, Symbol('ε')))
 
             final = State(str(this.counter + 1))
             this.states.add(final)
             this.counter += 1
 
             this.transitions.add(Transition(initial, final, Symbol('ε')))
-            this.transitions.add(Transition(left.final.pop(), final, Symbol('ε')))
-
-            this.initial = initial
-            this.final.add(final)
+            this.transitions.add(Transition(leftFinal, final, Symbol('ε')))
 
             this.symbols.add('ε')
 
         elif node.value == '+':
-            A = this.subsetConstruction(node.left)
+            aInitial, aFinal = this.subsetConstruction(node.left)
 
             initial = State(str(this.counter))
             this.states.add(initial)
             this.counter += 1
 
-            B = this.subsetConstruction(node.left)
-            this.transitions.add(Transition(initial, B.initial, Symbol('ε')))
-            this.transitions.add(Transition(B.final.peek(), B.initial, Symbol('ε')))
+            leftInitial, leftFinal = this.subsetConstruction(node.left)
+
+            this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
+            this.transitions.add(Transition(leftFinal, leftInitial, Symbol('ε')))
 
             final = State(str(this.counter + 1))
             this.states.add(final)
             this.counter += 1
 
-            this.transitions.add(Transition(initial, final, Symbol('ε')))
-            this.transitions.add(Transition(B.final.pop(), final, Symbol('ε')))
+            this.transitions.add(Transition(leftFinal, final, Symbol('ε')))
+            this.transitions.add(Transition(aFinal, final, Symbol('ε')))
 
-            this.initial = initial
-            this.final.add(final)
+            initial = aInitial
+            this.symbols.add('ε')
+
+        elif node.value == '?':
+            initial = State(str(this.counter))
+            this.states.add(initial)
+            this.counter += 1
+
+            leftInitial, leftFinal = this.subsetConstruction(node.left)
+            this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
+
+            this.counter += 1
+
+            rightInitial, rightFinal = this.subsetConstruction(Node('ε'))
+            this.transitions.add(Transition(initial, rightInitial, Symbol('ε')))
+
+            finals = [leftFinal, rightFinal]
+
+            final = State(str(this.counter + 1))
+            this.states.add(final)
+            this.counter += 1
+            
+            for x in range(len(finals)):
+                this.transitions.add(Transition(finals.pop(), final, Symbol('ε')))
 
             this.symbols.add('ε')
 
         elif node.value == '.':
-            left = this.subsetConstruction(node.left)
-            right = this.subsetConstruction(node.right)
+            leftInitial, leftFinal = this.subsetConstruction(node.left)
+            rightInitial, rightFinal = this.subsetConstruction(node.right)
 
-            this.initial = left.initial
+            initial = leftInitial
+            final = rightFinal
 
-        return this
+        return initial, final
