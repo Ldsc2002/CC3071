@@ -101,14 +101,6 @@ class Regex():
         elif closeBeforeOpen:
             raise ValueError("Invalid infix expression: close parenthesis before open parenthesis")
 
-        while True:
-            if infix[-1] in symbols:
-                infix = infix[:-1]
-            if infix[0] in symbols:
-                infix = infix[1:]
-            else:
-                break
-
         this.validatedInfix = infix
         return infix
 
