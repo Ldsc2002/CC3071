@@ -1,4 +1,5 @@
 import pydot
+import uuid
 from modules.common.symbol import *
 
 class Node(object):
@@ -7,20 +8,18 @@ class Node(object):
         this.left = left
         this.right = right
     
-    def printTree(this, graph, id = 0):
-        thisNode = pydot.Node(id, label = this.character)
+    def printTree(this, graph, parent = None):
+        thisNode = pydot.Node(str(uuid.uuid4()), label = this.character)
         graph.add_node(thisNode)
-        id += 1
+
+        if parent is not None:
+            graph.add_edge(pydot.Edge(parent, thisNode))
 
         if this.left is not None:
-            this.left.printTree(graph, id)
-            graph.add_edge(pydot.Edge(thisNode, id))
-            id += 1
+            this.left.printTree(graph, thisNode)
 
         if this.right is not None:
-            this.right.printTree(graph, id)
-            graph.add_edge(pydot.Edge(thisNode, id))
-            id += 1
+            this.right.printTree(graph, thisNode)
 
     def __getattribute__(this, name: str):
         if name == 'value':

@@ -21,9 +21,7 @@ class Regex():
                 stack.pop()
             elif c in specials:
                 while stack and stack[-1] != '(' and specials.get(
-                    # TODO check if this is correct
-                    # c, 0) <= specials.get(stack[-1], 0):
-                        c, 0) < specials.get(stack[-1], 0):
+                    c, 0) <= specials.get(stack[-1], 0):
                     pofix = pofix + stack.pop()
 
                 stack.append(c)
