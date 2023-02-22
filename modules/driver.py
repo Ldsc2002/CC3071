@@ -14,4 +14,6 @@ def generateNFA(regex):
     tree = RegexTree(postfix)
     tree.printTree()
 
-    NFA(tree.tree).createImage()
+    newNFA = NFA(tree.tree)
+    newNFA.print()
+    newNFA.createImage()

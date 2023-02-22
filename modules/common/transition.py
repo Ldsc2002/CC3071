@@ -12,3 +12,6 @@ class Transition():
         this.source = source
         this.target = target
         this.symbol = symbol
+
+    def __str__(this):
+        return str(this.source) + " - " + str(this.symbol) + " -> " + str(this.target)

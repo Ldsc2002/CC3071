@@ -40,3 +40,10 @@ class Automata():
             g.edge(str(transition.source.id), str(transition.target.id), label=transition.symbol.cid)
 
         g.view()
+
+    def print(this):
+        print("\nStates: ", this.states)
+        print("Initial: ", this.initial)
+        print("Final: ", this.final)
+        print("Symbols: ", this.symbols)
+        print("Transitions: ", this.transitions)

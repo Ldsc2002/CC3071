@@ -6,3 +6,6 @@ class State():
         this.id = stateID
         this.type = type
 
+    def __str__(this):
+        return str(this.id)
+

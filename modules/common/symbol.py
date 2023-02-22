@@ -6,3 +6,6 @@ class Symbol():
             this.cid = 'ε'
         else:
             this.cid = symbolID
+
+    def __str__(this):
+        return str(this.cid)
