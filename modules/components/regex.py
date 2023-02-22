@@ -7,7 +7,7 @@ class Regex():
     def infixToPostfix(this, regex):
         regex = this.validateInfix(regex)
 
-        specials = {'*': 5, '+': 4, '?': 3, '.': 2, '|': 1}
+        specials = {'*': 3, '+': 3, '?': 3, '.': 2, '|': 1}
 
         pofix = ""
         stack = []
@@ -37,7 +37,7 @@ class Regex():
         alphabet = [
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
             'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'E'
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'E'
         ]
 
         symbols = ['|', '.']
@@ -54,7 +54,7 @@ class Regex():
                 elif infix[x - 1] in unary and infix[x] in alphabet:
                     newInfix = newInfix + '.'
 
-                elif infix[x - 1] in alphabet and infix[x] == '(':
+                elif (infix[x - 1] in alphabet or infix[x - 1] in unary) and infix[x] == '(':
                     newInfix = newInfix + '.'
 
                 elif infix[x -1] == ')' and infix[x] == '(':
