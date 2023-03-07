@@ -2,11 +2,14 @@ from modules.common.node import *
 import pydot
 
 class RegexTree():
-    def __init__(this, postfix):
+    def __init__(this, postfix, forDFA = False):
         this.postfix = postfix
-        this.tree = this.buildTree()
+        this.tree = this.buildTree(forDFA)
 
-    def buildTree(this):
+    def buildTree(this, forDFA = False):
+        if forDFA:
+            this.postfix = this.postfix + '#.'
+
         stack = []
         for token in this.postfix:
             if token == '.':
