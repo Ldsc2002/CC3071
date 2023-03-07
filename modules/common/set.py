@@ -25,6 +25,9 @@ class Set():
 
     def pop(this):
         return this.elements.pop()
+    
+    def sort(this):
+        this.elements.sort()
 
     def __str__(this):
         string = "["

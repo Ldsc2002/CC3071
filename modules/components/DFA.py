@@ -4,18 +4,14 @@ from modules.components.regexTree import *
 
 class DFA(Automata):
     def __init__(this, regex):
+        super().__init__()
+
         if isinstance(regex, RegexTree):
-            super().__init__()
-
             this.directConstruction(regex)
-        elif isinstance(regex, NFA):
-            this.states = Set()
-            this.final = Set()
-            this.symbols = Set()
-            this.initial = State()
-            this.transitions = Set()
 
-            this.subsetConstruction(regex)
+        elif isinstance(regex, NFA):
+            this.subsetConstruction()
+            
         else:
             raise Exception('Invalid parameter for DFA constructor')
 
@@ -23,83 +19,91 @@ class DFA(Automata):
     def directConstruction(this, tree):
         pass
 
-    def subsetConstruction(this, nfa):
-        this.symbols = nfa.symbols
+    def subsetConstruction(this):
+        this.symbols = this.symbols
         
         if "ε" in this.symbols:
             this.symbols.remove("ε")
 
-        counter = 0
-        state = State(str(counter), Type(0))
+        subsets = {}
+        skips = []
 
-        stack = nfa.states.elements
+        for state in this.states:
+            if state.id in skips:
+                continue
 
-        if nfa.initial in nfa.final:
-            this.final.add(state)
-            state.type = Type(3)
+            initial = this.eClosure(state)
+            initial.sort()
 
-        this.states.add(state)
-        this.initial = state
-        counter += 1
+            initialKey = ""
+            for i in initial:
+                initialKey += i
 
-        for state in stack:
+            subsets[initialKey] = {}
             for symbol in this.symbols:
-                states = this.possibleDest(state, symbol, nfa.transitions)
-                newStates = Set()
+                subsets[initialKey][symbol] = ""
 
-                for s in states:
-                    test = this.epsilonClosure(s)
-                    newStates.union(this.epsilonClosure(s))
+            for testState in initial:
+                for transition in this.transitions:
+                    if transition.source.id == testState and transition.symbol.id != "ε":
+                        possibleDest = this.eClosure(transition.target)
+                        possibleDest.sort()
+                        
+                        possibleDestKey = ""
+                        for i in possibleDest:
+                            possibleDestKey += i
+                        
+                        subsets[initialKey][transition.symbol.id] = possibleDestKey
 
-                if len(newStates) > 0:
-                    for target in newStates:
-                        if target in this.states:
-                            for s in this.states:
-                                if s == target:
-                                    target = s
-                                    break
+            for state in initial:
+                if state not in skips:
+                    skips.append(state)
 
-                        else:
-                            target.id = str(counter)
-                            counter += 1
-                            target.type = Type(1)
+        newStates = {}
+        stateKeys = {}
 
-                            if target in nfa.final:
-                                this.final.add(target)
-                                target.type = Type(2)
+        this.transitions = Set()
+        this.states = Set()
+        finals = Set()
 
-                            this.states.add(target)
+        for x in range(len(subsets)):
+            newStates[x] = subsets[list(subsets.keys())[x]]
+            stateKeys[list(subsets.keys())[x]] = x
 
-                            stack.append(target)
+            arrayTest = list(subsets.keys())[x]
 
-                        if not this.checkTransitionExists(state, symbol, target):
-                            this.transitions.add(Transition(state, target, Symbol(symbol)))
+            for state in arrayTest:
+                for final in this.final:
+                    if state == final.id:
+                        finals.add(x)
+                        break
 
-        return this
-    
-    def epsilonClosure(this, state):
+        for subset in newStates:
+            for symbol in newStates[subset]:
+                if newStates[subset][symbol] != "":
+                    newStates[subset][symbol] = stateKeys[newStates[subset][symbol]]
+        
+        this.final = Set()
+        for subset in newStates:
+            state = State(subset)
+            this.states.add(state)
+
+            if subset == 0:
+                this.initial = state
+
+            if subset in finals:
+                this.final.add(state)
+
+            for symbol in newStates[subset]:
+                if newStates[subset][symbol] != "":
+                    this.transitions.add(Transition(State(subset), State(newStates[subset][symbol]), Symbol(symbol)))
+        
+    def eClosure(this, state):
         closure = Set()
-        closure.add(state)
+        closure.add(state.id)
 
         for transition in this.transitions:
-            if transition.symbol == "ε" and transition.source.id == state.id:
-                closure.union(this.epsilonClosure(transition.target))
+            if transition.source == state and transition.symbol.id == "ε":
+                closure.union(this.eClosure(transition.target))
 
         return closure
-    
-    def possibleDest(this, state, symbol, transitions):
-        moves = Set()
-    
-        for transition in transitions:
-            if transition.source.id == state.id and transition.symbol.id == symbol:
-                moves.add(transition.target)
-
-        return moves
-
-    
-    def checkTransitionExists(this, state, symbol, target):
-        for transition in this.transitions:
-            if transition.source.id == state.id and transition.symbol.id == symbol and transition.target.id == target.id:
-                True
-
-        return False
