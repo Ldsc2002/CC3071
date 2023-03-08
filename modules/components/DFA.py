@@ -4,14 +4,13 @@ from modules.components.regexTree import *
 
 class DFA(Automata):
     def __init__(this, regex, filename):
-        super().__init__()
-
         if isinstance(regex, RegexTree):
-            this.tree = regex
             this.filename = "DFA_Direct_(" + filename + ")"
             this.directConstruction(regex.tree)
 
         elif isinstance(regex, NFA):
+            super().__init__()
+
             this.filename = "DFA_Subset_(" + filename + ")"
             this.subsetConstruction()
             
@@ -137,6 +136,11 @@ class DFA(Automata):
                 newFollowPosTable[node] = followPosTable[node]
 
         followPosTable = newFollowPosTable
+
+        this.states = Set()
+        this.symbols = Set()
+        this.transitions = Set()
+        this.final = Set()
 
         for node in followPosTable:
             state = State(node)
