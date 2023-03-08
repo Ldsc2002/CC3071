@@ -6,12 +6,12 @@ class DFA(Automata):
     def __init__(this, regex, filename):
         super().__init__()
 
-        this.filename = "DFA_Subset_" + filename
-
         if isinstance(regex, RegexTree):
+            this.filename = "DFA_Direct_(" + filename + ")"
             this.directConstruction(regex)
 
         elif isinstance(regex, NFA):
+            this.filename = "DFA_Subset_(" + filename + ")"
             this.subsetConstruction()
             
         else:

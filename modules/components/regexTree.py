@@ -12,7 +12,7 @@ class RegexTree():
             filename = "NFA_" + filename
 
         this.postfix = postfix
-        this.filename = "Tree_" + filename
+        this.filename = "Tree_(" + filename + ")"
         this.tree = this.buildTree(forDFA)
 
     def buildTree(this, forDFA = False):
