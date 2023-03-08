@@ -96,7 +96,7 @@ class DFA(Automata):
             elif node.value == "+":
                 return getLastPos(node.left)
                 
-        def followPos(node, allNodes):
+        def getFollowPos(node, allNodes):
             parent = getParent(node, allNodes)
 
             if parent and parent.value == '.':
@@ -109,13 +109,12 @@ class DFA(Automata):
                         return getLastPos(parent)
                 
             if parent and parent.value == '*':
-                return followPos(parent, allNodes)
+                return getFollowPos(parent, allNodes)
             
             if parent and parent.value == "|":
-                return followPos(parent, allNodes)
+                return getFollowPos(parent, allNodes)
 
             return []
-
 
         def getParent(node, allNodes):
             for testParent in allNodes:
@@ -142,7 +141,7 @@ class DFA(Automata):
                 finalState = nodeTest.stateDFA
 
             if nodeTest.value not in operators:
-                followPosTable[nodeTest.stateDFA] = followPos(nodeTest, allNodes.copy())
+                followPosTable[nodeTest.stateDFA] = getFollowPos(nodeTest, allNodes.copy())
 
         root = getFirstPos(node)
         transitionTable = {}
@@ -211,7 +210,6 @@ class DFA(Automata):
                 this.symbols.add(symbol)
                 this.transitions.add(Transition(state, State(transitions[transition][symbol]), Symbol(symbol)))
 
-            
     def subsetConstruction(this):
         def eClosure(state, past = None):
             if past == None:
@@ -250,9 +248,6 @@ class DFA(Automata):
 
                     
             return newSet, False
-
-
-        this.symbols = this.symbols
         
         if "ε" in this.symbols:
             this.symbols.remove("ε")
@@ -338,7 +333,6 @@ class DFA(Automata):
                 else:
                     newStates[subset][symbol] = ""
 
-        
         this.final = Set()
         for subset in newStates:
             state = State(subset)
