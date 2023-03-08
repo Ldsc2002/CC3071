@@ -27,7 +27,11 @@ class DFA(Automata):
 
         subsets = {}
 
-        for state in this.states:
+        stack = this.states.elements.copy()
+
+        while len(stack) > 0:
+            state = stack.pop(0)
+
             initial = this.eClosure(state)
             initial.sort()
                         
@@ -35,6 +39,9 @@ class DFA(Automata):
 
             if not exists:
                 subsets[initial] = {}
+                for value in initial:
+                    stack.append(State(value))
+
                 for symbol in this.symbols:
                     subsets[initial][symbol] = Set()
 
@@ -42,9 +49,20 @@ class DFA(Automata):
                 for transition in this.transitions:
                     if transition.source.id == testState and transition.symbol.id != "ε":
                         possibleDest = this.eClosure(transition.target)
-                        possibleDest.sort()
-                        
+
                         subsets[initial][transition.symbol.id].union(possibleDest)
+
+            for symbol in this.symbols:
+                statesCopy = (subsets[initial][symbol]).copy()
+
+                if len(statesCopy) > 0:                
+                    _, exists = this.setExists(statesCopy, subsets, True)
+                    if not exists:
+                        print("New set: " + str(statesCopy))
+                        subsets[statesCopy] = {}
+
+                        for symbol in this.symbols:
+                            subsets[statesCopy][symbol] = Set()
 
         newStates = {}
         stateKeys = {}
@@ -65,8 +83,11 @@ class DFA(Automata):
                         break
 
             stateKeysValue = ""
-            for y in list(subsets.keys())[x]:
-                stateKeysValue += y
+            keysList = list(subsets.keys())[x]
+            keysList.sort()
+
+            for y in keysList:
+                stateKeysValue += y + " "
             
             stateKeys[stateKeysValue] = x
 
@@ -74,8 +95,12 @@ class DFA(Automata):
             for symbol in newStates[subset]:
                 if newStates[subset][symbol].len() > 0:
                     stateKeysValue = ""
-                    for x in newStates[subset][symbol]:
-                        stateKeysValue += x
+
+                    keysList = newStates[subset][symbol]
+                    
+                    keysList.sort()
+                    for x in keysList:
+                        stateKeysValue += x + " "
                     
                     test = newStates[subset][symbol]
 
@@ -112,15 +137,18 @@ class DFA(Automata):
         closure.add(state.id)
 
         for transition in this.transitions:
-            if transition.source == state and transition.symbol.id == "ε":
+            if transition.source.id == state.id and transition.symbol.id == "ε":
                 closure.union(this.eClosure(transition.target, past))
 
         return closure
     
-    def setExists(self, newSet, states):
+    def setExists(self, newSet, states, testExact = False):
         candidate = None
 
         for test in list(states.keys()):
+            if testExact and len(test.elements) != len(newSet.elements):
+                continue
+
             for state in newSet:
                 if state not in test.elements:
                     candidate = None

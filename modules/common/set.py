@@ -31,6 +31,14 @@ class Set():
 
     def len(this):
         return len(this.elements)
+    
+    def copy(this):
+        newSet = Set()
+
+        for element in this.elements:
+            newSet.add(element)
+
+        return newSet
 
     def __str__(this):
         string = "["
