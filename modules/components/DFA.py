@@ -26,22 +26,17 @@ class DFA(Automata):
             this.symbols.remove("ε")
 
         subsets = {}
-        skips = []
 
         for state in this.states:
-            if state.id in skips:
-                continue
-
             initial = this.eClosure(state)
             initial.sort()
+                        
+            initial, exists = this.setExists(initial, subsets)
 
-            initialKey = ""
-            for i in initial:
-                initialKey += i
-
-            subsets[initialKey] = {}
-            for symbol in this.symbols:
-                subsets[initialKey][symbol] = ""
+            if not exists:
+                subsets[initial] = {}
+                for symbol in this.symbols:
+                    subsets[initial][symbol] = Set()
 
             for testState in initial:
                 for transition in this.transitions:
@@ -49,15 +44,7 @@ class DFA(Automata):
                         possibleDest = this.eClosure(transition.target)
                         possibleDest.sort()
                         
-                        possibleDestKey = ""
-                        for i in possibleDest:
-                            possibleDestKey += i
-                        
-                        subsets[initialKey][transition.symbol.id] = possibleDestKey
-
-            for state in initial:
-                if state not in skips:
-                    skips.append(state)
+                        subsets[initial][transition.symbol.id].union(possibleDest)
 
         newStates = {}
         stateKeys = {}
@@ -68,7 +55,6 @@ class DFA(Automata):
 
         for x in range(len(subsets)):
             newStates[x] = subsets[list(subsets.keys())[x]]
-            stateKeys[list(subsets.keys())[x]] = x
 
             arrayTest = list(subsets.keys())[x]
 
@@ -78,10 +64,26 @@ class DFA(Automata):
                         finals.add(x)
                         break
 
+            stateKeysValue = ""
+            for y in list(subsets.keys())[x]:
+                stateKeysValue += y
+            
+            stateKeys[stateKeysValue] = x
+
         for subset in newStates:
             for symbol in newStates[subset]:
-                if newStates[subset][symbol] != "":
-                    newStates[subset][symbol] = stateKeys[newStates[subset][symbol]]
+                if newStates[subset][symbol].len() > 0:
+                    stateKeysValue = ""
+                    for x in newStates[subset][symbol]:
+                        stateKeysValue += x
+                    
+                    test = newStates[subset][symbol]
+
+                    newStates[subset][symbol] = stateKeys[stateKeysValue]
+                
+                else:
+                    newStates[subset][symbol] = ""
+
         
         this.final = Set()
         for subset in newStates:
@@ -98,12 +100,37 @@ class DFA(Automata):
                 if newStates[subset][symbol] != "":
                     this.transitions.add(Transition(State(subset), State(newStates[subset][symbol]), Symbol(symbol)))
         
-    def eClosure(this, state):
+    def eClosure(this, state, past = None):
+        if past == None:
+            past = []
+
+        if state.id in past:
+            return Set()
+            
+        past.append(state.id)
         closure = Set()
         closure.add(state.id)
 
         for transition in this.transitions:
             if transition.source == state and transition.symbol.id == "ε":
-                closure.union(this.eClosure(transition.target))
+                closure.union(this.eClosure(transition.target, past))
 
         return closure
+    
+    def setExists(self, newSet, states):
+        candidate = None
+
+        for test in list(states.keys()):
+            for state in newSet:
+                if state not in test.elements:
+                    candidate = None
+                    break
+
+                else:
+                    candidate = test
+            
+            if candidate:
+                return candidate, True
+
+                
+        return newSet, False

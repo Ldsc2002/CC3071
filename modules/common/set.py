@@ -29,6 +29,9 @@ class Set():
     def sort(this):
         this.elements.sort()
 
+    def len(this):
+        return len(this.elements)
+
     def __str__(this):
         string = "["
 
