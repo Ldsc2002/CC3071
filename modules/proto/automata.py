@@ -43,7 +43,11 @@ class Automata():
         g.view()
 
     def print(this):
-        print("\nStates: ", this.states)
+        states = Set()
+        for state in this.states:
+            states.add(state.id)
+
+        print("\nStates: ", states)
         print("Initial: ", this.initial)
         print("Final: ", this.final)
         print("Symbols: ", this.symbols)
