@@ -156,6 +156,45 @@ class DFA(Automata):
                     this.transitions.add(Transition(state, State(target), Symbol(symbol)))
             
     def subsetConstruction(this):
+        def eClosure(state, past = None):
+            if past == None:
+                past = []
+
+            if state.id in past:
+                return Set()
+                
+            past.append(state.id)
+            closure = Set()
+            closure.add(state.id)
+
+            for transition in this.transitions:
+                if transition.source.id == state.id and transition.symbol.id == "ε":
+                    closure.union(eClosure(transition.target, past))
+
+            return closure
+        
+        def setExists(newSet, states, testExact = False):
+            candidate = None
+
+            for test in list(states.keys()):
+                if testExact and len(test.elements) != len(newSet.elements):
+                    continue
+
+                for state in newSet:
+                    if state not in test.elements:
+                        candidate = None
+                        break
+
+                    else:
+                        candidate = test
+                
+                if candidate:
+                    return candidate, True
+
+                    
+            return newSet, False
+
+
         this.symbols = this.symbols
         
         if "ε" in this.symbols:
@@ -168,10 +207,10 @@ class DFA(Automata):
         while len(stack) > 0:
             state = stack.pop(0)
 
-            initial = this.eClosure(state)
+            initial = eClosure(state)
             initial.sort()
                         
-            initial, exists = this.setExists(initial, subsets)
+            initial, exists = setExists(initial, subsets)
 
             if not exists:
                 subsets[initial] = {}
@@ -184,7 +223,7 @@ class DFA(Automata):
             for testState in initial:
                 for transition in this.transitions:
                     if transition.source.id == testState and transition.symbol.id != "ε":
-                        possibleDest = this.eClosure(transition.target)
+                        possibleDest = eClosure(transition.target)
 
                         subsets[initial][transition.symbol.id].union(possibleDest)
 
@@ -192,7 +231,7 @@ class DFA(Automata):
                 statesCopy = (subsets[initial][symbol]).copy()
 
                 if len(statesCopy) > 0:                
-                    _, exists = this.setExists(statesCopy, subsets, True)
+                    _, exists = setExists(statesCopy, subsets, True)
                     if not exists:
                         subsets[statesCopy] = {}
 
@@ -258,40 +297,3 @@ class DFA(Automata):
                 if newStates[subset][symbol] != "":
                     this.transitions.add(Transition(State(subset), State(newStates[subset][symbol]), Symbol(symbol)))
         
-    def eClosure(this, state, past = None):
-        if past == None:
-            past = []
-
-        if state.id in past:
-            return Set()
-            
-        past.append(state.id)
-        closure = Set()
-        closure.add(state.id)
-
-        for transition in this.transitions:
-            if transition.source.id == state.id and transition.symbol.id == "ε":
-                closure.union(this.eClosure(transition.target, past))
-
-        return closure
-    
-    def setExists(this, newSet, states, testExact = False):
-        candidate = None
-
-        for test in list(states.keys()):
-            if testExact and len(test.elements) != len(newSet.elements):
-                continue
-
-            for state in newSet:
-                if state not in test.elements:
-                    candidate = None
-                    break
-
-                else:
-                    candidate = test
-            
-            if candidate:
-                return candidate, True
-
-                
-        return newSet, False
