@@ -8,18 +8,21 @@ def generateNFA(regex):
     print("\n ----- Generating NFA -----")
     print("Original Infix: " + regex)
 
-    postfix = Regex(regex).postfix
-    print("Parsed Infix: " + Regex(regex).validatedInfix)
+    regex = Regex(regex)
+    postfix = regex.postfix
+    parsed = regex.validatedInfix
+
+    print("Parsed Infix: " + parsed)
     print("Postfix: " + postfix)
 
-    tree = RegexTree(postfix)
+    tree = RegexTree(postfix, parsed)
     tree.printTree()
 
-    newNFA = NFA(tree.tree)
+    newNFA = NFA(tree.tree, parsed)
     newNFA.print()
-    # newNFA.createImage()
+    newNFA.createImage()
 
-    subsetDFA = DFA(newNFA)
+    subsetDFA = DFA(newNFA, parsed)
     subsetDFA.print()
     subsetDFA.createImage()
 

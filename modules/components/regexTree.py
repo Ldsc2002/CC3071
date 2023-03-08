@@ -2,8 +2,12 @@ from modules.common.node import *
 import pydot
 
 class RegexTree():
-    def __init__(this, postfix, forDFA = False):
+    def __init__(this, postfix, filename = None, forDFA = False):
+        if filename is None:
+            filename = postfix
+
         this.postfix = postfix
+        this.filename = "Tree_" + filename
         this.tree = this.buildTree(forDFA)
 
     def buildTree(this, forDFA = False):
@@ -36,4 +40,4 @@ class RegexTree():
     def printTree(this):
         graph = pydot.Dot(graph_type='graph')
         this.tree.printTree(graph)
-        graph.write_png('out/regexTree.png')
+        graph.write_png('out/' + this.filename + '.png')

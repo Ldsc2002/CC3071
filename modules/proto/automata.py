@@ -16,6 +16,7 @@ class Automata():
             or not isinstance(initial, State) 
             ): raise TypeError("Automata: states, final, symbols, initial and transitions must be of type Set and State respectively")
 
+        this.filename = "Automata_"
         this.states = states
         this.final = final
         this.symbols = symbols
@@ -23,7 +24,7 @@ class Automata():
         this.transitions = transitions
 
     def createImage(this):
-        g = Digraph('AFN', filename= 'out/Automata', format='png')
+        g = Digraph('AFN', filename=("out/" + this.filename), format='png')
         g.attr(rankdir='LR')
 
         for state in this.states:

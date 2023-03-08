@@ -3,8 +3,10 @@ from modules.components.NFA import *
 from modules.components.regexTree import *
 
 class DFA(Automata):
-    def __init__(this, regex):
+    def __init__(this, regex, filename):
         super().__init__()
+
+        this.filename = "DFA_Subset_" + filename
 
         if isinstance(regex, RegexTree):
             this.directConstruction(regex)
@@ -58,7 +60,6 @@ class DFA(Automata):
                 if len(statesCopy) > 0:                
                     _, exists = this.setExists(statesCopy, subsets, True)
                     if not exists:
-                        print("New set: " + str(statesCopy))
                         subsets[statesCopy] = {}
 
                         for symbol in this.symbols:
