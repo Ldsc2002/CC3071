@@ -17,7 +17,6 @@ class DFA(Automata):
         else:
             raise Exception('Invalid parameter for DFA constructor')
 
-
     def directConstruction(this, tree):
         pass
 

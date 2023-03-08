@@ -29,8 +29,8 @@ def generateNFA(regex):
     subsetDFA.print()
     subsetDFA.createImage()
 
-    # tree = RegexTree(postfix, True)
-    # tree.printTree()
+    tree = RegexTree(postfix, parsed, True)
+    tree.printTree()
 
     # directDFA = DFA(tree)
     # directDFA.print()
