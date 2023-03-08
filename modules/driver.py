@@ -18,20 +18,20 @@ def generateNFA(regex):
     print("Parsed Infix: " + parsed)
     print("Postfix: " + postfix)
 
-    tree = RegexTree(postfix, parsed)
-    tree.printTree()
+    # tree = RegexTree(postfix, parsed)
+    # tree.printTree()
 
-    newNFA = NFA(tree.tree, parsed)
-    newNFA.print()
-    newNFA.createImage()
+    # newNFA = NFA(tree.tree, parsed)
+    # newNFA.print()
+    # newNFA.createImage()
 
-    subsetDFA = DFA(newNFA, parsed)
-    subsetDFA.print()
-    subsetDFA.createImage()
+    # subsetDFA = DFA(newNFA, parsed)
+    # subsetDFA.print()
+    # subsetDFA.createImage()
 
     tree = RegexTree(postfix, parsed, True)
     tree.printTree()
 
-    # directDFA = DFA(tree)
-    # directDFA.print()
-    # directDFA.createImage()
+    directDFA = DFA(tree, parsed)
+    directDFA.print()
+    directDFA.createImage()

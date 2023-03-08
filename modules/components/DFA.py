@@ -7,8 +7,9 @@ class DFA(Automata):
         super().__init__()
 
         if isinstance(regex, RegexTree):
+            this.tree = regex
             this.filename = "DFA_Direct_(" + filename + ")"
-            this.directConstruction(regex)
+            this.directConstruction(regex.tree)
 
         elif isinstance(regex, NFA):
             this.filename = "DFA_Subset_(" + filename + ")"
@@ -17,9 +18,143 @@ class DFA(Automata):
         else:
             raise Exception('Invalid parameter for DFA constructor')
 
-    def directConstruction(this, tree):
-        pass
+    def directConstruction(this, node):
+        def getAllNodes(node, allNodes = None):
+            if allNodes is None:
+                allNodes = []
 
+            if node not in allNodes:
+                allNodes.append(node)
+
+            if node.right is not None:
+                getAllNodes(node.right, allNodes)
+
+            if node.left is not None:
+                getAllNodes(node.left, allNodes)
+
+            return allNodes 
+
+        def isNullable(node):
+            if node.left is None and node.right is None:
+                return False
+
+            elif node.value == '|':
+                return isNullable(node.left) or isNullable(node.right)
+
+            elif node.value == '*':
+                return True
+
+            elif node.value == '.':
+                return isNullable(node.left) and isNullable(node.right)  
+            
+        def getFirstPos(node):
+            if node.left is None and node.right is None:
+                return [node]
+
+            elif node.value == '|':
+                return getFirstPos(node.left) + getFirstPos(node.right)
+
+            elif node.value == '*':
+                return getFirstPos(node.left)
+
+            elif node.value == '.':
+                if isNullable(node.left):
+                    return getFirstPos(node.left) + getFirstPos(node.right)
+                else:
+                    return getFirstPos(node.left)
+                
+        def getLastPos(node):
+            if node.left is None and node.right is None:
+                return [node]
+
+            elif node.value == '|':
+                return getLastPos(node.left) + getLastPos(node.right)
+
+            elif node.value == '*':
+                return getLastPos(node.left)
+
+            elif node.value == '.':
+                if isNullable(node.right):
+                    return getLastPos(node.left) + getLastPos(node.right)
+                else:
+                    return getLastPos(node.right)
+                
+        def followPos(node):
+            if node.left is None and node.right is None:
+                return {}
+
+            elif node.value == '|':
+                return {}
+
+            elif node.value == '*':
+                return {}
+
+            elif node.value == '.':
+                followPos = {}
+
+                for leftNode in getLastPos(node.left):
+                    followPos[leftNode] = getFirstPos(node.right)
+
+                return followPos
+
+        allNodes = getAllNodes(node)
+        nodeFollowPos = {}
+        nodeDict = {}
+        followPosTable = {}
+        finals = []
+
+        for node in allNodes:
+            nodeFollowPos[node] = followPos(node)
+
+            if node not in nodeDict:
+                nodeDict[node] = len(nodeDict)
+
+        for node in allNodes:
+            if node.value == "#":
+                finals.append(nodeDict[node])
+
+            followPosTable[nodeDict[node]] = {}
+
+            for symbol in nodeFollowPos[node]:
+                followPosTable[nodeDict[node]][symbol.value] = []
+
+                for target in nodeFollowPos[node][symbol]:
+                    followPosTable[nodeDict[node]][symbol.value].append(nodeDict[target])
+        
+        possibleStates = []
+        for node in followPosTable:
+            if len(followPosTable[node]) > 0:
+                possibleStates.append(node)
+
+            for symbol in followPosTable[node]:
+                for target in followPosTable[node][symbol]:
+                    if target not in possibleStates:
+                        possibleStates.append(target)
+        
+        newFollowPosTable = {}
+        for node in followPosTable:
+            if node in possibleStates:
+                newFollowPosTable[node] = followPosTable[node]
+
+        followPosTable = newFollowPosTable
+
+        for node in followPosTable:
+            state = State(node)
+            
+            if node == 0:
+                this.initial = state
+            
+            if node in finals:
+                this.final.add(state)
+
+            this.states.add(state)
+
+            for symbol in followPosTable[node]:
+                this.symbols.add(symbol)
+
+                for target in followPosTable[node][symbol]:
+                    this.transitions.add(Transition(state, State(target), Symbol(symbol)))
+            
     def subsetConstruction(this):
         this.symbols = this.symbols
         
@@ -102,8 +237,6 @@ class DFA(Automata):
                     for x in keysList:
                         stateKeysValue += x + " "
                     
-                    test = newStates[subset][symbol]
-
                     newStates[subset][symbol] = stateKeys[stateKeysValue]
                 
                 else:
@@ -142,7 +275,7 @@ class DFA(Automata):
 
         return closure
     
-    def setExists(self, newSet, states, testExact = False):
+    def setExists(this, newSet, states, testExact = False):
         candidate = None
 
         for test in list(states.keys()):
