@@ -7,6 +7,7 @@ class Node(object):
         this.value = Symbol(value)     
         this.left = left
         this.right = right
+        this.stateDFA = -1
     
     def printTree(this, graph, parent = None):
         thisNode = pydot.Node(str(uuid.uuid4()), label = this.character)

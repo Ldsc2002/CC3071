@@ -25,11 +25,11 @@ class DFA(Automata):
             if node not in allNodes:
                 allNodes.append(node)
 
-            if node.right is not None:
-                getAllNodes(node.right, allNodes)
-
             if node.left is not None:
                 getAllNodes(node.left, allNodes)
+
+            if node.right is not None:
+                getAllNodes(node.right, allNodes)
 
             return allNodes 
 
@@ -46,9 +46,15 @@ class DFA(Automata):
             elif node.value == '.':
                 return isNullable(node.left) and isNullable(node.right)  
             
+            elif node.value == "?":
+                return True
+            
+            elif node.value == "+":
+                return isNullable(node.left)
+            
         def getFirstPos(node):
             if node.left is None and node.right is None:
-                return [node]
+                return [node.stateDFA]
 
             elif node.value == '|':
                 return getFirstPos(node.left) + getFirstPos(node.right)
@@ -62,9 +68,15 @@ class DFA(Automata):
                 else:
                     return getFirstPos(node.left)
                 
+            elif node.value == "?":
+                return getFirstPos(node.left)
+            
+            elif node.value == "+":
+                return getFirstPos(node.left)
+                
         def getLastPos(node):
             if node.left is None and node.right is None:
-                return [node]
+                return [node.stateDFA]
 
             elif node.value == '|':
                 return getLastPos(node.left) + getLastPos(node.right)
@@ -78,86 +90,127 @@ class DFA(Automata):
                 else:
                     return getLastPos(node.right)
                 
-        def followPos(node):
-            if node.left is None and node.right is None:
-                return {}
+            elif node.value == "?":
+                return getLastPos(node.left)
+            
+            elif node.value == "+":
+                return getLastPos(node.left)
+                
+        def followPos(node, allNodes):
+            parent = getParent(node, allNodes)
 
-            elif node.value == '|':
-                return {}
+            if parent and parent.value == '.':
+                if node == parent.left:
+                    return getFirstPos(parent)
+                if node == parent.right:
+                    parent = getParent(parent, allNodes)
+                    
+                    if parent: 
+                        return getLastPos(parent)
+                
+            if parent and parent.value == '*':
+                return followPos(parent, allNodes)
+            
+            if parent and parent.value == "|":
+                return followPos(parent, allNodes)
 
-            elif node.value == '*':
-                return {}
+            return []
 
-            elif node.value == '.':
-                followPos = {}
 
-                for leftNode in getLastPos(node.left):
-                    followPos[leftNode] = getFirstPos(node.right)
+        def getParent(node, allNodes):
+            for testParent in allNodes:
+                if testParent.left == node or testParent.right == node:
+                    return testParent
 
-                return followPos
+        operators = [".", "|", "*", "?", "+"]
+        followPosTable = {}
+        symbols = Set()
+        finalState = -1
 
         allNodes = getAllNodes(node)
-        nodeFollowPos = {}
-        nodeDict = {}
-        followPosTable = {}
-        finals = []
+        stateCount = 1
+        for nodeTest in allNodes:
+            if nodeTest.value not in operators:
+                nodeTest.stateDFA = stateCount
+                stateCount += 1
 
-        for node in allNodes:
-            nodeFollowPos[node] = followPos(node)
-
-            if node not in nodeDict:
-                nodeDict[node] = len(nodeDict)
-
-        for node in allNodes:
-            if node.value == "#":
-                finals.append(nodeDict[node])
-
-            followPosTable[nodeDict[node]] = {}
-
-            for symbol in nodeFollowPos[node]:
-                followPosTable[nodeDict[node]][symbol.value] = []
-
-                for target in nodeFollowPos[node][symbol]:
-                    followPosTable[nodeDict[node]][symbol.value].append(nodeDict[target])
+                if nodeTest.value != "#":
+                    symbols.add(nodeTest.value)
         
-        possibleStates = []
-        for node in followPosTable:
-            if len(followPosTable[node]) > 0:
-                possibleStates.append(node)
+        for nodeTest in allNodes:
+            if nodeTest.value == "#":
+                finalState = nodeTest.stateDFA
 
-            for symbol in followPosTable[node]:
-                for target in followPosTable[node][symbol]:
-                    if target not in possibleStates:
-                        possibleStates.append(target)
-        
-        newFollowPosTable = {}
-        for node in followPosTable:
-            if node in possibleStates:
-                newFollowPosTable[node] = followPosTable[node]
+            if nodeTest.value not in operators:
+                followPosTable[nodeTest.stateDFA] = followPos(nodeTest, allNodes.copy())
 
-        followPosTable = newFollowPosTable
+        root = getFirstPos(node)
+        transitionTable = {}
+        stateDict = {str(root): 0}
+        finals = Set()
+        stack = []
+
+        while True:
+            transitionTable[str(root)] = {}
+
+            for symbol in symbols:
+                destState = []
+                transitionTable[str(root)][symbol] = Set()
+
+                for state in allNodes:
+                    for stateRoot in root:
+                        if state.stateDFA == stateRoot and state.value == symbol:
+                            stateFollowPos = followPosTable[state.stateDFA]
+
+                            for followPos in stateFollowPos:
+                                destState.append(followPos)
+                                transitionTable[str(root)][symbol].add(followPos)
+
+                transitionTable[str(root)][symbol] = str(transitionTable[str(root)][symbol].elements)
+
+                if str(destState) not in transitionTable:
+                    stateDict[str(destState)] = len(stateDict)
+                    stack.append(destState)
+
+                if finalState in root:
+                    finals.add(str(root))
+
+            if len(stack) > 0:
+                root = stack.pop(0)
+            else:
+                break
+
+        transitions = {}
+        finalStates = Set()
+
+        for state in transitionTable:
+            if state in finals:
+                finalStates.add(stateDict[state])
+
+            transitions[stateDict[state]] = {}
+
+            for symbol in transitionTable[state]:
+                transitions[stateDict[state]][symbol] = stateDict[transitionTable[state][symbol]]  
 
         this.states = Set()
         this.symbols = Set()
         this.transitions = Set()
         this.final = Set()
 
-        for node in followPosTable:
-            state = State(node)
-            
-            if node == 0:
-                this.initial = state
-            
-            if node in finals:
-                this.final.add(state)
-
+        for transition in transitions:
+            state = State(transition)
             this.states.add(state)
 
-            for symbol in followPosTable[node]:
-                this.symbols.add(symbol)
+            if transition in finalStates:
+                this.final.add(state)
 
-                for target in followPosTable[node][symbol]:
-                    this.transitions.add(Transition(state, State(target), Symbol(symbol)))
+            if transition == 0:
+                this.initial = state
+
+            for symbol in transitions[transition]:
+                this.symbols.add(symbol)
+                this.transitions.add(Transition(state, State(transitions[transition][symbol]), Symbol(symbol)))
+
             
     def subsetConstruction(this):
         def eClosure(state, past = None):
