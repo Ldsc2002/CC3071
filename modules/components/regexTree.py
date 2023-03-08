@@ -6,6 +6,11 @@ class RegexTree():
         if filename is None:
             filename = postfix
 
+        if forDFA:
+            filename = "DFA_" + filename
+        else:
+            filename = "NFA_" + filename
+
         this.postfix = postfix
         this.filename = "Tree_" + filename
         this.tree = this.buildTree(forDFA)

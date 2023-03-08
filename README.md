@@ -1,3 +1,3 @@
 Use E as epsilon
 
-All generated images are stored in /out
+All generated files are stored in /out

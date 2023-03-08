@@ -5,6 +5,9 @@ from modules.components.DFA import *
 from modules.common.utils import *
 
 def generateNFA(regex):
+    checkFolder("out/")
+    deleteAllFiles("out/")
+
     print("\n ----- Generating NFA -----")
     print("Original Infix: " + regex)
 

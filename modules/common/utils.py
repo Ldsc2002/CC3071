@@ -1,3 +1,5 @@
+import glob, os
+
 def menuInput(options, text = "Menu"):
     menu = "\n" + text + ":\n"
 
@@ -55,3 +57,12 @@ def intInput(text, maxValue, minValue = 0):
                 print("\nIngrese un número entre " + str(minValue) + " y " + str(maxValue))
         except:
             print("\nIngrese una opción válida")  
+
+def deleteAllFiles(path):
+    files = glob.glob(path + "*")
+    for f in files:
+        os.remove(f)
+
+def checkFolder(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
