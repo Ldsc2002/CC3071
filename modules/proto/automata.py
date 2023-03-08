@@ -30,6 +30,10 @@ class Automata():
         for state in this.states:
             if state in this.final:
                 g.node(str(state.id), label=str(state.id), shape='doublecircle')
+
+                if state == this.initial:
+                    g.node("", shape='none', width='0', height='0')
+                    g.edge("", str(state.id))
             else:
                 if state == this.initial:
                     g.node("", shape='none', width='0', height='0')
