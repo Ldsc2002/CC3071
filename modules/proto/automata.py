@@ -46,6 +46,25 @@ class Automata():
 
         g.view()
 
+    def simulate(this, word):
+        current = this.initial.id
+        for symbol in word:
+            for transition in this.transitions:
+                if transition.source.id == current and transition.symbol.id == symbol:
+                    current = transition.target.id
+                    break
+        
+        inFinal = False
+        for state in this.final:
+            if state.id == current:
+                inFinal = True
+                break
+
+        if inFinal:
+            print("\nThe word '" + word + "' is accepted by the automata")
+        else:
+            print("\nThe word '" + word + "' is not accepted by the automata")
+
     def print(this):
         states = Set()
         for state in this.states:
