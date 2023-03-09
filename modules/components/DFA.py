@@ -99,27 +99,59 @@ class DFA(Automata):
         def getFollowPos(node, allNodes):
             parent = getParent(node, allNodes)
 
-            if parent and parent.value == '.':
-                if node == parent.left:
-                    return getFirstPos(parent)
-                if node == parent.right:
-                    parent = getParent(parent, allNodes)
-                    
-                    if parent: 
-                        return getLastPos(parent)
-                
-            if parent and parent.value == '*':
-                return getFollowPos(parent, allNodes)
-            
-            if parent and parent.value == "|":
-                return getFollowPos(parent, allNodes)
+            if parent:
+                if parent.value == '.' or parent.value == "|" or parent.value == "?":
+                    if (node == parent.right and parent.value == '.') or (parent.value == "|") or (parent.value == "?"):
+                        parent = getParent(parent, allNodes)
+                        
+                    if parent:
+                        firstPosRight = getFirstPos(parent.right)
+                        lastPosLeft = getLastPos(parent.left)
 
-            return []
+                        tempFollowPos = Set()
+
+                        for posLeft in lastPosLeft:
+                            tempItem = getFollowPos(posLeft, allNodes)
+
+                            for item in tempItem:
+                                tempFollowPos.add(item)
+                            
+                        for posRight in firstPosRight:
+                            tempFollowPos.add(posRight)
+                        
+                        return tempFollowPos
+                    
+                elif parent.value == '*' or parent.value == "+":
+                    firstPostTemp = getFirstPos(parent.left)
+                    lastPosTemp = getLastPos(parent.left)
+
+                    tempFollowPos = Set()
+
+                    for posLast in lastPosTemp:
+                        tempItem = getFollowPos(posLast, allNodes)
+
+                        for item in tempItem:
+                            tempFollowPos.add(item)
+
+                    for posFirst in firstPostTemp:
+                        tempFollowPos.add(posFirst)
+
+
+                    parentFollowPos = getFollowPos(parent, allNodes)
+
+                    for item in parentFollowPos:
+                        tempFollowPos.add(item)
+                        
+                    return tempFollowPos
+                    
+            return Set()
 
         def getParent(node, allNodes):
             for testParent in allNodes:
                 if testParent.left == node or testParent.right == node:
                     return testParent
+                
+            return None
 
         operators = [".", "|", "*", "?", "+"]
         followPosTable = {}
@@ -167,7 +199,7 @@ class DFA(Automata):
 
                 transitionTable[str(root)][symbol] = str(transitionTable[str(root)][symbol].elements)
 
-                if str(destState) not in transitionTable:
+                if str(destState) not in transitionTable and len(destState) > 0:
                     stateDict[str(destState)] = len(stateDict)
                     stack.append(destState)
 
@@ -189,7 +221,8 @@ class DFA(Automata):
             transitions[stateDict[state]] = {}
 
             for symbol in transitionTable[state]:
-                transitions[stateDict[state]][symbol] = stateDict[transitionTable[state][symbol]]  
+                if transitionTable[state][symbol] != "[]":
+                    transitions[stateDict[state]][symbol] = stateDict[transitionTable[state][symbol]] 
 
         this.states = Set()
         this.symbols = Set()
