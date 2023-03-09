@@ -30,7 +30,7 @@ def selectOption(options, text = "Seleccione una opción"):
     selected = menuInput(menuOptions, text)
     return userOptions[str(selected)]
 
-def textInput(text, maxLength = 20):
+def textInput(text, minLength = 0, maxLength = 20):
     while(True):
         userInput = input("\n" + text + ": ")
 
@@ -38,7 +38,11 @@ def textInput(text, maxLength = 20):
             inputData = str(userInput)
 
             if len(inputData) <= maxLength:
-                return(inputData)
+                if len(inputData) <= maxLength and len(inputData) >= minLength:
+                    return(inputData)
+                else: 
+                    print("\nPor favor ingresar un mínimo de " + str(minLength) + "caracteres.")
+                
             else: 
                 print("\nPor favor ingresar un máximo de " + str(maxLength) + "caracteres.")
         except:

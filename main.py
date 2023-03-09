@@ -1,11 +1,10 @@
 from modules.driver import generateNFA, textInput
 
 if __name__ == '__main__':
-    regex = textInput("Please enter a regular expression")
-    simulate = textInput("Do you want to simulate the NFA? (y/n)")
+    regex = textInput("Please enter a regular expression", 1)
+    simulate = textInput("Please enter a word to simulate (leave blank to skip)")
     
-    if simulate == "y":
-        word = textInput("Please enter a word to simulate")
-        generateNFA(regex, word)
+    if len(simulate) > 0:
+        generateNFA(regex, simulate)
     else:
         generateNFA(regex)
