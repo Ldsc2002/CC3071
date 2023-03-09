@@ -83,11 +83,24 @@ class Automata():
             print("\nThe word '" + word + "' is not accepted by the automata " + this.filename)
 
     def print(this):
+        if "NFA" in this.filename:
+            print("\nNFA: ")
+        elif "minDFA" in this.filename:
+            if "Direct" in this.filename:
+                print("\nDirect Minimized DFA: ")
+            elif "Subset" in this.filename:
+                print("\nSubset Minimized DFA: ")
+        elif "DFA" in this.filename:
+            if "Direct" in this.filename:
+                print("\nDirect DFA: ")
+            elif "Subset" in this.filename:
+                print("\nSubset DFA: ")
+
         states = Set()
         for state in this.states:
             states.add(state.id)
 
-        print("\nStates: ", states)
+        print("States: ", states)
         print("Initial: ", this.initial)
         print("Final: ", this.final)
         print("Symbols: ", this.symbols)
