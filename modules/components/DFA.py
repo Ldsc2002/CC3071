@@ -102,7 +102,7 @@ class DFA(Automata):
             if parent:
                 if parent.value == '.' or parent.value == "|" or parent.value == "?":
                     if (node == parent.right and parent.value == '.') or (parent.value == "|") or (parent.value == "?"):
-                        parent = getParent(parent, allNodes)
+                        return getFollowPos(parent, allNodes)
                         
                     if parent:
                         firstPosRight = getFirstPos(parent.right)
