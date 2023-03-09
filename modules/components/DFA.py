@@ -199,9 +199,12 @@ class DFA(Automata):
 
                 transitionTable[str(root)][symbol] = str(transitionTable[str(root)][symbol].elements)
 
-                if str(destState) not in transitionTable and len(destState) > 0:
-                    stateDict[str(destState)] = len(stateDict)
-                    stack.append(destState)
+                if len(destState) > 0:
+                    if str(destState) not in transitionTable:
+                        stack.append(destState)
+
+                    if str(destState) not in stateDict:
+                        stateDict[str(destState)] = len(stateDict)
 
                 if finalState in root:
                     finals.add(str(root))
