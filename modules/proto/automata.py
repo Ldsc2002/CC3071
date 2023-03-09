@@ -47,23 +47,40 @@ class Automata():
         g.view()
 
     def simulate(this, word):
-        current = this.initial.id
+        def eClosure(state, past = None):
+            if past == None:
+                past = []
+
+            if state.id in past:
+                return Set()
+                
+            past.append(state.id)
+            closure = Set()
+            closure.add(state.id)
+
+            for transition in this.transitions:
+                if transition.source.id == state.id and transition.symbol.id == "ε":
+                    closure.union(eClosure(transition.target, past))
+
+            return closure
+        
+        current = eClosure(this.initial)
         for symbol in word:
             for transition in this.transitions:
-                if transition.source.id == current and transition.symbol.id == symbol:
-                    current = transition.target.id
+                if transition.source.id in current and transition.symbol.id == symbol:
+                    current = eClosure(transition.target)
                     break
-        
+
         inFinal = False
         for state in this.final:
-            if state.id == current:
+            if state.id in current:
                 inFinal = True
-                break
+                break    
 
         if inFinal:
-            print("\nThe word '" + word + "' is accepted by the automata")
+            print("\nThe word '" + word + "' is accepted by the automata " + this.filename)
         else:
-            print("\nThe word '" + word + "' is not accepted by the automata")
+            print("\nThe word '" + word + "' is not accepted by the automata " + this.filename)
 
     def print(this):
         states = Set()

@@ -4,7 +4,7 @@ from modules.components.NFA import *
 from modules.components.DFA import *
 from modules.common.utils import *
 
-def generateNFA(regex):
+def generateNFA(regex, simulate = None):
     checkFolder("out/")
     deleteAllFiles("out/")
 
@@ -35,3 +35,8 @@ def generateNFA(regex):
     directDFA = DFA(tree, parsed)
     directDFA.print()
     directDFA.createImage()
+
+    if simulate:
+        newNFA.simulate(simulate)
+        subsetDFA.simulate(simulate)
+        directDFA.simulate(simulate)
