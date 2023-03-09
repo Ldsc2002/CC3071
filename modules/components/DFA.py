@@ -18,6 +18,8 @@ class DFA(Automata):
             raise Exception('Invalid parameter for DFA constructor')
 
     def directConstruction(this, node):
+        operators = [".", "|", "*", "?", "+"]
+
         def getAllNodes(node, allNodes = None):
             if allNodes is None:
                 allNodes = []
@@ -153,98 +155,121 @@ class DFA(Automata):
                 
             return None
 
-        operators = [".", "|", "*", "?", "+"]
-        followPosTable = {}
-        symbols = Set()
-        finalState = -1
+        def buildFollowPosTable():
+            stateCount = 1
+            allNodes = getAllNodes(node)
+            
+            for nodeTest in allNodes:
+                if nodeTest.value not in operators:
+                    nodeTest.stateDFA = stateCount
+                    stateCount += 1     
 
-        allNodes = getAllNodes(node)
-        stateCount = 1
-        for nodeTest in allNodes:
-            if nodeTest.value not in operators:
-                nodeTest.stateDFA = stateCount
-                stateCount += 1
+            followPosTable = {}
+            allNodes = getAllNodes(node)
+            finalState = -1
 
-                if nodeTest.value != "#":
-                    symbols.add(nodeTest.value)
+            for nodeTest in allNodes:
+                if nodeTest.value == "#":
+                    finalState = nodeTest.stateDFA
+
+                if nodeTest.value not in operators:
+                    followPosTable[nodeTest.stateDFA] = getFollowPos(nodeTest, allNodes.copy())
+
+            return followPosTable, finalState
         
-        for nodeTest in allNodes:
-            if nodeTest.value == "#":
-                finalState = nodeTest.stateDFA
+        def buildTransitionTable(followPosTable, finalState):
+            allNodes = getAllNodes(node)
+            
+            symbols = Set()
+            
+            for nodeTest in allNodes:
+                if nodeTest.value not in operators and nodeTest.value != "#":
+                    symbols.add(nodeTest.value)
 
-            if nodeTest.value not in operators:
-                followPosTable[nodeTest.stateDFA] = getFollowPos(nodeTest, allNodes.copy())
+            finals = Set()
+            stack = []
+            transitionTable = {}
 
-        root = getFirstPos(node)
-        transitionTable = {}
-        stateDict = {str(root): 0}
-        finals = Set()
-        stack = []
+            root = getFirstPos(node)
+            stateDict = {str(root): 0}
 
-        while True:
-            transitionTable[str(root)] = {}
+            while True:
+                transitionTable[str(root)] = {}
 
-            for symbol in symbols:
-                destState = []
-                transitionTable[str(root)][symbol] = Set()
+                for symbol in symbols:
+                    destState = []
+                    transitionTable[str(root)][symbol] = Set()
 
-                for state in allNodes:
-                    for stateRoot in root:
-                        if state.stateDFA == stateRoot and state.value == symbol:
-                            stateFollowPos = followPosTable[state.stateDFA]
+                    for state in allNodes:
+                        for stateRoot in root:
+                            if state.stateDFA == stateRoot and state.value == symbol:
+                                stateFollowPos = followPosTable[state.stateDFA]
 
-                            for followPos in stateFollowPos:
-                                destState.append(followPos)
-                                transitionTable[str(root)][symbol].add(followPos)
+                                for followPos in stateFollowPos:
+                                    destState.append(followPos)
+                                    transitionTable[str(root)][symbol].add(followPos)
 
-                transitionTable[str(root)][symbol] = str(transitionTable[str(root)][symbol].elements)
+                    transitionTable[str(root)][symbol] = str(transitionTable[str(root)][symbol].elements)
 
-                if len(destState) > 0:
-                    if str(destState) not in transitionTable:
-                        stack.append(destState)
+                    if len(destState) > 0:
+                        if str(destState) not in transitionTable:
+                            stack.append(destState)
 
-                    if str(destState) not in stateDict:
-                        stateDict[str(destState)] = len(stateDict)
+                        if str(destState) not in stateDict:
+                            stateDict[str(destState)] = len(stateDict)
 
-                if finalState in root:
-                    finals.add(str(root))
+                    if finalState in root:
+                        finals.add(str(root))
 
-            if len(stack) > 0:
-                root = stack.pop(0)
-            else:
-                break
+                if len(stack) > 0:
+                    root = stack.pop(0)
+                else:
+                    break
+            
+            return transitionTable, stateDict, finals
+        
+        def buildTransitions(transitionTable, stateDict, finals):
+            transitions = {}
+            finalStates = Set()
 
-        transitions = {}
-        finalStates = Set()
+            for state in transitionTable:
+                if state in finals:
+                    finalStates.add(stateDict[state])
 
-        for state in transitionTable:
-            if state in finals:
-                finalStates.add(stateDict[state])
+                transitions[stateDict[state]] = {}
 
-            transitions[stateDict[state]] = {}
+                for symbol in transitionTable[state]:
+                    if transitionTable[state][symbol] != "[]":
+                        transitions[stateDict[state]][symbol] = stateDict[transitionTable[state][symbol]] 
 
-            for symbol in transitionTable[state]:
-                if transitionTable[state][symbol] != "[]":
-                    transitions[stateDict[state]][symbol] = stateDict[transitionTable[state][symbol]] 
+            return transitions, finalStates
+        
+        def buildAutomata(transitions, finalStates):
+            this.states = Set()
+            this.symbols = Set()
+            this.transitions = Set()
+            this.final = Set()
 
-        this.states = Set()
-        this.symbols = Set()
-        this.transitions = Set()
-        this.final = Set()
+            for transition in transitions:
+                state = State(transition)
+                this.states.add(state)
 
-        for transition in transitions:
-            state = State(transition)
-            this.states.add(state)
+                if transition in finalStates:
+                    this.final.add(state)
 
-            if transition in finalStates:
-                this.final.add(state)
+                if transition == 0:
+                    this.initial = state
 
-            if transition == 0:
-                this.initial = state
+                for symbol in transitions[transition]:
+                    this.symbols.add(symbol)
+                    this.transitions.add(Transition(state, State(transitions[transition][symbol]), Symbol(symbol)))
+        
+        followPosTable, finalState = buildFollowPosTable()
+        transitionTable, stateDict, finals = buildTransitionTable(followPosTable, finalState)
+        
+        transitions, finalStates = buildTransitions(transitionTable, stateDict, finals)
+        buildAutomata(transitions, finalStates)
 
-            for symbol in transitions[transition]:
-                this.symbols.add(symbol)
-                this.transitions.add(Transition(state, State(transitions[transition][symbol]), Symbol(symbol)))
 
     def subsetConstruction(this):
         def eClosure(state, past = None):
