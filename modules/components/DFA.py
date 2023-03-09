@@ -310,102 +310,115 @@ class DFA(Automata):
                     
             return newSet, False
         
+        def buildSubsets():
+            subsets = {}
+            stack = this.states.elements.copy()
+
+            while len(stack) > 0:
+                state = stack.pop(0)
+
+                initial = eClosure(state)
+                initial.sort()
+                            
+                initial, exists = setExists(initial, subsets)
+
+                if not exists:
+                    subsets[initial] = {}
+                    for value in initial:
+                        stack.append(State(value))
+
+                    for symbol in this.symbols:
+                        subsets[initial][symbol] = Set()
+
+                for testState in initial:
+                    for transition in this.transitions:
+                        if transition.source.id == testState and transition.symbol.id != "ε":
+                            possibleDest = eClosure(transition.target)
+
+                            subsets[initial][transition.symbol.id].union(possibleDest)
+
+                for symbol in this.symbols:
+                    statesCopy = (subsets[initial][symbol]).copy()
+
+                    if len(statesCopy) > 0:                
+                        _, exists = setExists(statesCopy, subsets, True)
+                        if not exists:
+                            subsets[statesCopy] = {}
+
+                            for symbol in this.symbols:
+                                subsets[statesCopy][symbol] = Set()
+
+            return subsets
+        
+        def getNewStates(subsets):
+            newStates = {}
+            stateKeys = {}
+            finals = Set()
+
+            for x in range(len(subsets)):
+                newStates[x] = subsets[list(subsets.keys())[x]]
+
+                arrayTest = list(subsets.keys())[x]
+
+                for state in arrayTest:
+                    for final in this.final:
+                        if state == final.id:
+                            finals.add(x)
+                            break
+
+                stateKeysValue = ""
+                keysList = list(subsets.keys())[x]
+                keysList.sort()
+
+                for y in keysList:
+                    stateKeysValue += y + " "
+                
+                stateKeys[stateKeysValue] = x
+
+            return newStates, stateKeys, finals
+        
+        def buildTransitionTable(newStates, stateKeys):
+            for subset in newStates:
+                for symbol in newStates[subset]:
+                    if newStates[subset][symbol].len() > 0:
+                        stateKeysValue = ""
+
+                        keysList = newStates[subset][symbol]
+                        
+                        keysList.sort()
+                        for x in keysList:
+                            stateKeysValue += x + " "
+                        
+                        newStates[subset][symbol] = stateKeys[stateKeysValue]
+                    
+                    else:
+                        newStates[subset][symbol] = ""
+            
+            return newStates
+            
+        def buildTransitions(newStates, finals):
+            this.final = Set()
+            this.states = Set()
+            this.transitions = Set()
+
+            for subset in newStates:
+                state = State(subset)
+                this.states.add(state)
+
+                if subset == 0:
+                    this.initial = state
+
+                if subset in finals:
+                    this.final.add(state)
+
+                for symbol in newStates[subset]:
+                    if newStates[subset][symbol] != "":
+                        this.transitions.add(Transition(State(subset), State(newStates[subset][symbol]), Symbol(symbol)))
+
         if "ε" in this.symbols:
             this.symbols.remove("ε")
 
-        subsets = {}
-
-        stack = this.states.elements.copy()
-
-        while len(stack) > 0:
-            state = stack.pop(0)
-
-            initial = eClosure(state)
-            initial.sort()
-                        
-            initial, exists = setExists(initial, subsets)
-
-            if not exists:
-                subsets[initial] = {}
-                for value in initial:
-                    stack.append(State(value))
-
-                for symbol in this.symbols:
-                    subsets[initial][symbol] = Set()
-
-            for testState in initial:
-                for transition in this.transitions:
-                    if transition.source.id == testState and transition.symbol.id != "ε":
-                        possibleDest = eClosure(transition.target)
-
-                        subsets[initial][transition.symbol.id].union(possibleDest)
-
-            for symbol in this.symbols:
-                statesCopy = (subsets[initial][symbol]).copy()
-
-                if len(statesCopy) > 0:                
-                    _, exists = setExists(statesCopy, subsets, True)
-                    if not exists:
-                        subsets[statesCopy] = {}
-
-                        for symbol in this.symbols:
-                            subsets[statesCopy][symbol] = Set()
-
-        newStates = {}
-        stateKeys = {}
-
-        this.transitions = Set()
-        this.states = Set()
-        finals = Set()
-
-        for x in range(len(subsets)):
-            newStates[x] = subsets[list(subsets.keys())[x]]
-
-            arrayTest = list(subsets.keys())[x]
-
-            for state in arrayTest:
-                for final in this.final:
-                    if state == final.id:
-                        finals.add(x)
-                        break
-
-            stateKeysValue = ""
-            keysList = list(subsets.keys())[x]
-            keysList.sort()
-
-            for y in keysList:
-                stateKeysValue += y + " "
-            
-            stateKeys[stateKeysValue] = x
-
-        for subset in newStates:
-            for symbol in newStates[subset]:
-                if newStates[subset][symbol].len() > 0:
-                    stateKeysValue = ""
-
-                    keysList = newStates[subset][symbol]
-                    
-                    keysList.sort()
-                    for x in keysList:
-                        stateKeysValue += x + " "
-                    
-                    newStates[subset][symbol] = stateKeys[stateKeysValue]
-                
-                else:
-                    newStates[subset][symbol] = ""
-
-        this.final = Set()
-        for subset in newStates:
-            state = State(subset)
-            this.states.add(state)
-
-            if subset == 0:
-                this.initial = state
-
-            if subset in finals:
-                this.final.add(state)
-
-            for symbol in newStates[subset]:
-                if newStates[subset][symbol] != "":
-                    this.transitions.add(Transition(State(subset), State(newStates[subset][symbol]), Symbol(symbol)))
-        
+        subsets = buildSubsets()
+        newStates, stateKeys, finals = getNewStates(subsets)
+        transitionTable = buildTransitionTable(newStates, stateKeys)
+        buildTransitions(transitionTable, finals)
