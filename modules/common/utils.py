@@ -1,4 +1,6 @@
 import glob, os
+import inspect
+from time import sleep
 
 def menuInput(options, text = "Menu"):
     menu = "\n" + text + ":\n"
@@ -70,3 +72,12 @@ def deleteAllFiles(path):
 def checkFolder(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+def isDebugging():
+    flag = any('pydevd' in name[1] for name in inspect.stack())
+
+    if flag:
+        print("\nDebugging mode detected: using default test values")
+        sleep(2)
+
+    return flag
