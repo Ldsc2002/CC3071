@@ -127,7 +127,7 @@ class DFA(Automata):
 
                         return getFollowPos(node, allNodes, parent, lastValid)
                     else:
-                        return getFollowPos(node, allNodes, parent)
+                        return getFollowPos(node, allNodes, parent, lastValid)
                     
                 elif parent.value == '*':
                     tempLastPos = getLastPos(parent)
@@ -139,10 +139,10 @@ class DFA(Automata):
                             
                         return getFollowPos(node, allNodes, parent, lastValid)
                     else:
-                        return getFollowPos(node, allNodes, parent)
+                        return getFollowPos(node, allNodes, parent, lastValid)
                 
                 else:
-                    return getFollowPos(node, allNodes, parent)
+                    return getFollowPos(node, allNodes, parent, lastValid)
             
             elif len(lastValid) > 0:
                 return lastValid.sorted()
