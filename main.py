@@ -1,4 +1,5 @@
 from modules.driver import generateNFA, textInput, isDebugging, menuInput, selectOption
+
 options = [
     "(a*|b*)c",
     "(b|b)*abb(a|b)*",
@@ -16,7 +17,6 @@ options = [
     "(01)*(10)*",
     "a(a?b*|c+)b|baa"
 ]
-
 
 if __name__ == '__main__':
     if isDebugging():
