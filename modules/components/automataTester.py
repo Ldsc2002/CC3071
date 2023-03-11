@@ -6,9 +6,9 @@ from modules.components.minimizedDFA import *
 from modules.common.utils import *
 
 def testAutomata(regex, simulate):
-    result = runWithTimeout(testFunction, (regex, simulate, True), 5, False)
+    result = runWithTimeout(testFunction, (regex, simulate, True), 5, "Timeout")
 
-    if not result:
+    if result == "Timeout":
         print("ERROR: Failed to generate automatas")
 
 def testAutomatas(regex, simulate):
@@ -21,12 +21,13 @@ def testAutomatas(regex, simulate):
     results = []
 
     for x in range(len(regex)):
-        result = runWithTimeout(testFunction, (regex[x], simulate[x]), 5, False)
+        result = runWithTimeout(testFunction, (regex[x], simulate[x]), 3, "Timeout")
 
-        if not result:
+        if result == "Timeout":
             print("ERROR: Failed to generate automatas")
-
-        results.append(result)
+            results.append(False)
+        else:
+            results.append(result)
 
 
     print("\nResults:")
@@ -68,6 +69,11 @@ def testFunction(regex, simulate, printRes = False):
     allEqual = True
     for transition in transitionsDirect:
         if transition not in transitionsSubset:
+            allEqual = False
+            break
+
+    for transition in transitionsSubset:
+        if transition not in transitionsDirect:
             allEqual = False
             break
 
