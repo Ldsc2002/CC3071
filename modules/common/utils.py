@@ -77,7 +77,7 @@ def isDebugging():
     flag = any('pydevd' in name[1] for name in inspect.stack())
 
     if flag:
-        print("\nDebugging mode detected: using default test values")
+        print("\n---------- Debugging mode detected ----------")
         sleep(2)
 
     return flag
