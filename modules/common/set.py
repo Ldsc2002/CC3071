@@ -39,6 +39,16 @@ class Set():
             newSet.add(element)
 
         return newSet
+    
+    def sorted(this):
+        newSet = []
+
+        for element in this.elements:
+            newSet.append(element)
+
+        newSet.sort()
+
+        return newSet
 
     def __str__(this):
         string = "["

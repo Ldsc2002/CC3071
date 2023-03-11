@@ -37,7 +37,10 @@ class DFA(Automata):
 
         def isNullable(node):
             if node.left is None and node.right is None:
-                return False
+                if node.value != 'E':
+                    return False
+                else:
+                    return True
 
             elif node.value == '|':
                 return isNullable(node.left) or isNullable(node.right)
@@ -56,7 +59,10 @@ class DFA(Automata):
             
         def getFirstPos(node):
             if node.left is None and node.right is None:
-                return [node.stateDFA]
+                if node.value != 'E':
+                    return [node.stateDFA]
+                else:
+                    return []
 
             elif node.value == '|':
                 return getFirstPos(node.left) + getFirstPos(node.right)
@@ -78,7 +84,10 @@ class DFA(Automata):
                 
         def getLastPos(node):
             if node.left is None and node.right is None:
-                return [node.stateDFA]
+                if node.value != 'E':
+                    return [node.stateDFA]
+                else:
+                    return []
 
             elif node.value == '|':
                 return getLastPos(node.left) + getLastPos(node.right)
@@ -98,55 +107,47 @@ class DFA(Automata):
             elif node.value == "+":
                 return getLastPos(node.left)
                 
-        def getFollowPos(node, allNodes):
-            parent = getParent(node, allNodes)
+        def getFollowPos(node, allNodes, parent = None, lastValid = None):
+            if lastValid is None:
+                lastValid = Set()
 
             if parent:
-                if parent.value == '.' or parent.value == "|" or parent.value == "?":
-                    if (node == parent.right and parent.value == '.') or (parent.value == "|") or (parent.value == "?"):
-                        return getFollowPos(parent, allNodes)
-                        
-                    if parent:
-                        firstPosRight = getFirstPos(parent.right)
-                        lastPosLeft = getLastPos(parent.left)
+                parent = getParent(parent, allNodes)
+            else:
+                parent = getParent(node, allNodes)
 
-                        tempFollowPos = Set()
+            if parent:
+                if parent.value == '.':
+                    lastPosLeft = getLastPos(parent.left)
+                    firstPosRight = getFirstPos(parent.right)
 
-                        for posLeft in lastPosLeft:
-                            tempItem = getFollowPos(posLeft, allNodes)
+                    if node.stateDFA in lastPosLeft:
+                        for state in firstPosRight:
+                            lastValid.add(state)
 
-                            for item in tempItem:
-                                tempFollowPos.add(item)
+                        return getFollowPos(node, allNodes, parent, lastValid)
+                    else:
+                        return getFollowPos(node, allNodes, parent)
+                    
+                elif parent.value == '*':
+                    tempLastPos = getLastPos(parent)
+                    tempFirstPos = getFirstPos(parent)
+
+                    if node.stateDFA in tempLastPos:
+                        for state in tempFirstPos:
+                            lastValid.add(state)
                             
-                        for posRight in firstPosRight:
-                            tempFollowPos.add(posRight)
-                        
-                        return tempFollowPos
+                        return getFollowPos(node, allNodes, parent, lastValid)
+                    else:
+                        return getFollowPos(node, allNodes, parent)
+                
+                else:
+                    return getFollowPos(node, allNodes, parent)
+            
+            elif len(lastValid) > 0:
+                return lastValid.sorted()
                     
-                elif parent.value == '*' or parent.value == "+":
-                    firstPostTemp = getFirstPos(parent.left)
-                    lastPosTemp = getLastPos(parent.left)
-
-                    tempFollowPos = Set()
-
-                    for posLast in lastPosTemp:
-                        tempItem = getFollowPos(posLast, allNodes)
-
-                        for item in tempItem:
-                            tempFollowPos.add(item)
-
-                    for posFirst in firstPostTemp:
-                        tempFollowPos.add(posFirst)
-
-
-                    parentFollowPos = getFollowPos(parent, allNodes)
-
-                    for item in parentFollowPos:
-                        tempFollowPos.add(item)
-                        
-                    return tempFollowPos
-                    
-            return Set()
+            return []
 
         def getParent(node, allNodes):
             for testParent in allNodes:
@@ -160,7 +161,7 @@ class DFA(Automata):
             allNodes = getAllNodes(node)
             
             for nodeTest in allNodes:
-                if nodeTest.value not in operators:
+                if nodeTest.value not in operators and nodeTest.value != "E":
                     nodeTest.stateDFA = stateCount
                     stateCount += 1     
 
@@ -172,7 +173,7 @@ class DFA(Automata):
                 if nodeTest.value == "#":
                     finalState = nodeTest.stateDFA
 
-                if nodeTest.value not in operators:
+                if nodeTest.value not in operators and nodeTest.value != "E":
                     followPosTable[nodeTest.stateDFA] = getFollowPos(nodeTest, allNodes.copy())
 
             return followPosTable, finalState
@@ -183,7 +184,7 @@ class DFA(Automata):
             symbols = Set()
             
             for nodeTest in allNodes:
-                if nodeTest.value not in operators and nodeTest.value != "#":
+                if nodeTest.value not in operators and nodeTest.value != "#" and nodeTest.value != "E":
                     symbols.add(nodeTest.value)
 
             finals = Set()
@@ -284,7 +285,7 @@ class DFA(Automata):
             closure.add(state.id)
 
             for transition in this.transitions:
-                if transition.source.id == state.id and transition.symbol.id == "ε":
+                if transition.source.id == state.id and transition.symbol.cid == "ε":
                     closure.union(eClosure(transition.target, past))
 
             return closure
@@ -332,7 +333,7 @@ class DFA(Automata):
 
                 for testState in initial:
                     for transition in this.transitions:
-                        if transition.source.id == testState and transition.symbol.id != "ε":
+                        if transition.source.id == testState and transition.symbol.cid != "ε":
                             possibleDest = eClosure(transition.target)
 
                             subsets[initial][transition.symbol.id].union(possibleDest)
