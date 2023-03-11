@@ -9,7 +9,11 @@ class DFA(Automata):
             this.directConstruction(regex.tree)
 
         elif isinstance(regex, NFA):
-            super().__init__()
+            this.states = regex.states
+            this.final = regex.final
+            this.symbols = regex.symbols
+            this.initial = regex.initial
+            this.transitions = regex.transitions
 
             this.filename = "DFA_Subset_(" + filename + ")"
             this.subsetConstruction()

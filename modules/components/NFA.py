@@ -2,10 +2,13 @@ from modules.proto.automata import *
 
 class NFA(Automata):
     def __init__(this, startNode, filename):
-        super().__init__()
+        this.states = Set()
+        this.final = Set()
+        this.symbols = Set()
+        this.initial = State()
+        this.transitions = Set()
 
         this.filename = "NFA_(" + filename + ")"
-
 
         this.counter = 0
         initial, final = this.thompsonConstruction(startNode)

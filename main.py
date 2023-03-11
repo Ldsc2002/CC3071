@@ -38,14 +38,16 @@ testStrings = [
 
 if __name__ == '__main__':
     if isDebugging():
-        print("\nTesting regexes...")
+        operationMode = menuInput(["Test one", "Test all"], "Select an operation mode")
 
-        if len(options) != len(testStrings):
-            print("ERROR: options and testStrings must have the same length")
-            exit()
-
-        for x in range(len(options)):
-            debugAutomatas(options[x], testStrings[x])
+        if operationMode == 1:
+            regex = selectOption(options, "Select a regex")
+            simulate = textInput("Please enter a word to simulate (leave blank to skip)")
+        
+            debugAutomatas(regex, simulate)
+        
+        elif operationMode == 2:
+            debugAutomatas(options, testStrings)
     
     else:
         operationMode = menuInput(["Select regex from defaults list", "Input regex manually"], "Select an operation mode")
