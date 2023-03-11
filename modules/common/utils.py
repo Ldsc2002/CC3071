@@ -78,6 +78,6 @@ def isDebugging():
 
     if flag:
         print("\n---------- Debugging mode detected ----------")
-        sleep(2)
+        sleep(1)
 
     return flag
