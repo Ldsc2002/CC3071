@@ -53,7 +53,7 @@ def generateNFA(regex, simulate = None):
         minDirectDFA.simulate(simulate)
         minSubsetDFA.simulate(simulate)
 
-def debugAutomatas(regex, simulate):
+def runTests(regex, simulate):
     if isinstance(regex, str):
         testAutomata(regex, simulate)
     elif isinstance(regex, list):

@@ -1,4 +1,4 @@
-from modules.driver import generateNFA, debugAutomatas, textInput, isDebugging, menuInput, selectOption
+from modules.driver import generateNFA, runTests, textInput, isDebugging, menuInput, selectOption
 
 options = [
     "(a*|b*)c",
@@ -44,10 +44,10 @@ if __name__ == '__main__':
             regex = selectOption(options, "Select a regex")
             simulate = textInput("Please enter a word to simulate (leave blank to skip)")
         
-            debugAutomatas(regex, simulate)
+            runTests(regex, simulate)
         
         elif operationMode == 2:
-            debugAutomatas(options, testStrings)
+            runTests(options, testStrings)
     
     else:
         operationMode = menuInput(["Select regex from defaults list", "Input regex manually"], "Select an operation mode")

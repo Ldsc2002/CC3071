@@ -6,7 +6,7 @@ from modules.components.minimizedDFA import *
 from modules.common.utils import *
 
 def testAutomata(regex, simulate):
-    result = runWithTimeout(debugFunction, (regex, simulate, True), 5, False)
+    result = runWithTimeout(testFunction, (regex, simulate, True), 5, False)
 
     if not result:
         print("ERROR: Failed to generate automatas")
@@ -21,7 +21,7 @@ def testAutomatas(regex, simulate):
     results = []
 
     for x in range(len(regex)):
-        result = runWithTimeout(debugFunction, (regex[x], simulate[x]), 5, False)
+        result = runWithTimeout(testFunction, (regex[x], simulate[x]), 5, False)
 
         if not result:
             print("ERROR: Failed to generate automatas")
@@ -38,7 +38,7 @@ def testAutomatas(regex, simulate):
 
     print(str(correct) + "/" + str(len(results)) + " correct")
 
-def debugFunction(regex, simulate, printRes = False):
+def testFunction(regex, simulate, printRes = False):
     regex = Regex(regex)
     postfix = regex.postfix
     parsed = regex.validatedInfix
