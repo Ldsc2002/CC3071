@@ -1,6 +1,8 @@
 import glob, os
 import inspect
 from time import sleep
+import signal
+from threading import Thread
 
 def menuInput(options, text = "Menu"):
     menu = "\n" + text + ":\n"
@@ -81,3 +83,25 @@ def isDebugging():
         sleep(1)
 
     return flag
+
+def runWithTimeout(func, args = (), kwargs = {}, timeout_duration = 1, default = "Timeout"):
+    class InterruptableThread(Thread):
+        def __init__(this):
+            Thread.__init__(this)
+            this.result = default
+
+        def run(this):
+            try:
+                this.result = func(*args, **kwargs)
+            except Exception as e:
+                this.result = e
+
+    it = InterruptableThread()
+    it.start()
+    it.join(timeout_duration)
+    
+    # if it.is_alive():
+        # os.kill(os.getpid(), signal.SIGKILL)
+        # it.join()
+
+    return it.result

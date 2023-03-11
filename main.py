@@ -18,13 +18,34 @@ options = [
     "a(a?b*|c+)b|baa" #TODO fix direct missing one transition
 ]
 
+testStrings = [
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+]
+
 if __name__ == '__main__':
     if isDebugging():
-        regex = selectOption(options, "Select a regex")
+        print("\nTesting regexes...")
 
-        simulate = textInput("Please enter a word to simulate (leave blank to skip)")
+        if len(options) != len(testStrings):
+            print("ERROR: options and testStrings must have the same length")
+            exit()
 
-        debugAutomatas(regex, simulate)
+        for x in range(len(options)):
+            debugAutomatas(options[x], testStrings[x])
     
     else:
         operationMode = menuInput(["Select regex from defaults list", "Input regex manually"], "Select an operation mode")

@@ -46,7 +46,7 @@ class Automata():
 
         g.view()
 
-    def simulate(this, word):
+    def simulate(this, word, printResult = True):
         def eClosure(state, past = None):
             if past == None:
                 past = []
@@ -77,10 +77,13 @@ class Automata():
                 inFinal = True
                 break    
 
-        if inFinal:
-            print("\nThe word '" + word + "' is accepted by the automata " + this.filename)
-        else:
-            print("\nThe word '" + word + "' is not accepted by the automata " + this.filename)
+        if printResult:
+            if inFinal:
+                print("\nThe word '" + word + "' is accepted by the automata " + this.filename)
+            else:
+                print("\nThe word '" + word + "' is not accepted by the automata " + this.filename)
+
+        return inFinal
 
     def print(this):
         if "NFA" in this.filename:

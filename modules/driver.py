@@ -57,18 +57,42 @@ def debugAutomatas(regex, simulate):
     postfix = regex.postfix
     parsed = regex.validatedInfix
 
+    print("\nRegex: " + parsed)
+
     tree = RegexTree(postfix, parsed)
-    newNFA = NFA(tree.tree, parsed)
-    subsetDFA = DFA(newNFA, parsed)
+
+    newNFA = runWithTimeout(NFA, (tree.tree, parsed), timeout_duration = 3)
+    subsetDFA = runWithTimeout(DFA, (newNFA, parsed), timeout_duration = 3)
     
     tree = RegexTree(postfix, parsed, True)
-    directDFA = DFA(tree, parsed)
+    directDFA = runWithTimeout(DFA, (tree, parsed), timeout_duration = 3)
 
-    minDirectDFA = minimizedDFA(directDFA)
-    minSubsetDFA = minimizedDFA(subsetDFA)
+    minDirectDFA = runWithTimeout(minimizedDFA, (directDFA,), timeout_duration = 3)
+    minSubsetDFA = runWithTimeout(minimizedDFA, (subsetDFA,), timeout_duration = 3)
 
     transitionsDirect = []
     transitionsSubset = []
+
+    if newNFA == "Timeout":
+        print("ERROR: NFA generation timed out")
+        return
+    
+    if subsetDFA == "Timeout":
+        print("ERROR: Subset DFA generation timed out")
+        return
+    
+    if directDFA == "Timeout":
+        print("ERROR: Direct DFA generation timed out")
+        return
+    
+    if minDirectDFA == "Timeout":
+        print("ERROR: Minimized Direct DFA generation timed out")
+        return
+    
+    if minSubsetDFA == "Timeout":
+        print("ERROR: Minimized Subset DFA generation timed out")
+        return
+    
 
     for transition in directDFA.transitions:
         transitionsDirect.append([transition.source.id, transition.symbol.cid, transition.target.id])
@@ -83,17 +107,17 @@ def debugAutomatas(regex, simulate):
             break
 
     if allEqual:
-        print("\nMinimized Subset DFA and Minimized Direct DFA are equal")
+        print("SUCCESS: Minimized Subset DFA and Minimized Direct DFA are equal")
 
         if simulate:
             results = []
             result = True
 
-            results.append(newNFA.simulate(simulate))
-            results.append(subsetDFA.simulate(simulate))
-            results.append(directDFA.simulate(simulate))
-            results.append(minDirectDFA.simulate(simulate))
-            results.append(minSubsetDFA.simulate(simulate))
+            results.append(newNFA.simulate(simulate, False))
+            results.append(subsetDFA.simulate(simulate, False))
+            results.append(directDFA.simulate(simulate, False))
+            results.append(minDirectDFA.simulate(simulate, False))
+            results.append(minSubsetDFA.simulate(simulate, False))
 
             for res in results:
                 if res != results[0]:
@@ -101,8 +125,8 @@ def debugAutomatas(regex, simulate):
                     break
 
             if result:
-                print("\nAll automatas are working correctly")
+                print("SUCCESS: Automata simulation results are equal")
             else:
-                print("\nERROR: Automata simulation results are different")
+                print("ERROR: Automata simulation results are different")
     else:
-        print("\nERROR: Minimized Subset DFA and Minimized Direct DFA are different")
+        print("ERROR: Minimized Subset DFA and Minimized Direct DFA are different")
