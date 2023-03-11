@@ -23,10 +23,12 @@ class NFA(Automata):
             this.states.add(final)
 
             this.transitions.add(Transition(initial, final, Symbol(node.value)))
-            this.symbols.add(node.value)
-            
-            this.symbols.add(node.value)
 
+            if node.value == 'E':
+                this.symbols.add('ε')
+            else:
+                this.symbols.add(node.value)
+            
         elif node.value == '|':
             initial = State(str(this.counter))
             this.states.add(initial)

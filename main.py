@@ -2,7 +2,8 @@ from modules.driver import generateNFA, textInput, isDebugging
 
 if __name__ == '__main__':
     if isDebugging():
-        regex = "a(a?b*|c+)b|baa"
+        # regex = "a(a?b*|c+)b|baa"
+        regex = "((E|0)1*)*"
         simulate = "baa"
     
     else:
