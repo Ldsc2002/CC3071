@@ -211,7 +211,9 @@ class DFA(Automata):
                                 stateFollowPos = followPosTable[state.stateDFA]
 
                                 for followPos in stateFollowPos:
-                                    destState.append(followPos)
+                                    if followPos not in destState:
+                                        destState.append(followPos)
+                                    
                                     transitionTable[str(root)][symbol].add(followPos)
 
                     transitionTable[str(root)][symbol] = str(transitionTable[str(root)][symbol].elements)
