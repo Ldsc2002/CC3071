@@ -54,6 +54,9 @@ def generateNFA(regex, simulate = None):
         minSubsetDFA.simulate(simulate)
 
 def runTests(regex, simulate):
+    checkFolder("out/")
+    deleteAllFiles("out/")
+
     if isinstance(regex, str):
         testAutomata(regex, simulate)
     elif isinstance(regex, list):

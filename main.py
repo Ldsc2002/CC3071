@@ -11,7 +11,7 @@ options = [
     "((E|0)1*)*",
     "(0|1)*0(0|1)(0|1)", #TODO fix subsets missing states and transitions
     "(00)*(11)*",
-    "0|1)1*(0|1)",
+    "(0|1)1*(0|1)",
     "0?(1|E)?0*", #TODO fix subsets has extra states
     "((1?)*)*",
     "(01)*(10)*",

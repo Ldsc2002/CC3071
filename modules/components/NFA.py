@@ -75,52 +75,6 @@ class NFA(Automata):
 
             this.symbols.add('ε')
 
-        elif node.value == '+':
-            aInitial, aFinal = this.thompsonConstruction(node.left)
-
-            initial = State(str(this.counter))
-            this.states.add(initial)
-            this.counter += 1
-
-            leftInitial, leftFinal = this.thompsonConstruction(node.left)
-
-            this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
-            this.transitions.add(Transition(leftFinal, leftInitial, Symbol('ε')))
-
-            final = State(str(this.counter + 1))
-            this.states.add(final)
-            this.counter += 1
-
-            this.transitions.add(Transition(leftFinal, final, Symbol('ε')))
-            this.transitions.add(Transition(aFinal, final, Symbol('ε')))
-
-            initial = aInitial
-            this.symbols.add('ε')
-
-        elif node.value == '?':
-            initial = State(str(this.counter))
-            this.states.add(initial)
-            this.counter += 1
-
-            leftInitial, leftFinal = this.thompsonConstruction(node.left)
-            this.transitions.add(Transition(initial, leftInitial, Symbol('ε')))
-
-            this.counter += 1
-
-            rightInitial, rightFinal = this.thompsonConstruction(Node('ε'))
-            this.transitions.add(Transition(initial, rightInitial, Symbol('ε')))
-
-            finals = [leftFinal, rightFinal]
-
-            final = State(str(this.counter + 1))
-            this.states.add(final)
-            this.counter += 1
-            
-            for x in range(len(finals)):
-                this.transitions.add(Transition(finals.pop(), final, Symbol('ε')))
-
-            this.symbols.add('ε')
-
         elif node.value == '.':
             leftInitial, leftFinal = this.thompsonConstruction(node.left)
             rightInitial, rightFinal = this.thompsonConstruction(node.right)

@@ -31,13 +31,13 @@ class RegexTree():
                 stack.append(Node('|', left, right))
             elif token == '?':
                 left = stack.pop()
-                stack.append(Node('?', left))
+                stack.append(Node('|', left, Node('E')))
             elif token == '*':
                 left = stack.pop()
                 stack.append(Node('*', left))
             elif token == '+': 
                 left = stack.pop()
-                stack.append(Node('+', left))
+                stack.append(Node('.', left, Node('*', left)))
             else:
                 stack.append(Node(token))
         return stack.pop()

@@ -55,12 +55,6 @@ class DFA(Automata):
             elif node.value == '.':
                 return isNullable(node.left) and isNullable(node.right)  
             
-            elif node.value == "?":
-                return True
-            
-            elif node.value == "+":
-                return isNullable(node.left)
-            
         def getFirstPos(node):
             if node.left is None and node.right is None:
                 if node.value != 'E':
@@ -80,12 +74,6 @@ class DFA(Automata):
                 else:
                     return getFirstPos(node.left)
                 
-            elif node.value == "?":
-                return getFirstPos(node.left)
-            
-            elif node.value == "+":
-                return getFirstPos(node.left)
-                
         def getLastPos(node):
             if node.left is None and node.right is None:
                 if node.value != 'E':
@@ -104,12 +92,6 @@ class DFA(Automata):
                     return getLastPos(node.left) + getLastPos(node.right)
                 else:
                     return getLastPos(node.right)
-                
-            elif node.value == "?":
-                return getLastPos(node.left)
-            
-            elif node.value == "+":
-                return getLastPos(node.left)
                 
         def getFollowPos(node, allNodes, parent = None, lastValid = None):
             if lastValid is None:
