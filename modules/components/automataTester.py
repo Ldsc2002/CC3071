@@ -78,6 +78,9 @@ def testFunction(regex, simulate, printRes = False):
             break
 
     if printRes:
+        newNFA.print()
+        subsetDFA.print()
+        directDFA.print()
         minDirectDFA.print()
         minSubsetDFA.print()
 

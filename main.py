@@ -3,7 +3,7 @@ from modules.driver import generateNFA, runTests, textInput, isDebugging, menuIn
 options = [
     "(a*|b*)c",
     "(b|b)*abb(a|b)*", 
-    "(a|E)b(a+)c?", #TODO fix direct missing states
+    "(a|E)b(a+)c?",
     "(a|b)*a(a|b)(a|b)", #TODO fix subsets missing states
     "b*ab?",
     "b+abc+", #TODO fix direct missing transitions

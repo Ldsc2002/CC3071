@@ -47,20 +47,22 @@ class Automata():
         g.view()
 
     def simulate(this, word, printResult = True):
-        def eClosure(state, past = None):
-            if past == None:
-                past = []
-
-            if state.id in past:
-                return Set()
-                
-            past.append(state.id)
+        def eClosure(state):
+            stack = [state]
             closure = Set()
+            visited = Set()
             closure.add(state.id)
 
-            for transition in this.transitions:
-                if transition.source.id == state.id and transition.symbol.id == "ε":
-                    closure.union(eClosure(transition.target, past))
+            while len(stack) > 0:
+                state = stack.pop()
+                
+                for transition in this.transitions:
+                    if transition.source.id == state.id and transition.symbol.cid == "ε":
+                        if transition.target.id not in visited:
+                            visited.add(transition.target.id)
+                            stack.append(transition.target)
+ 
+                        closure.add(transition.target.id)
 
             return closure
         
