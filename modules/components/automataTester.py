@@ -19,6 +19,7 @@ def testAutomatas(regex, simulate):
         exit()
 
     results = []
+    failed = []
 
     for x in range(len(regex)):
         result = runWithTimeout(testFunction, (regex[x], simulate[x]), 3, "Timeout")
@@ -26,9 +27,12 @@ def testAutomatas(regex, simulate):
         if result == "Timeout":
             print("ERROR: Failed to generate automatas")
             results.append(False)
+            failed.append(regex[x])
         else:
             results.append(result)
 
+            if not result:
+                failed.append(regex[x])
 
     print("\nResults:")
     correct = 0
@@ -38,6 +42,7 @@ def testAutomatas(regex, simulate):
             correct += 1
 
     print(str(correct) + "/" + str(len(results)) + " correct")
+    print("Failed tests: " + str(failed))
 
 def testFunction(regex, simulate, printRes = False):
     regex = Regex(regex)
