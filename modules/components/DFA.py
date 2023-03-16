@@ -303,21 +303,13 @@ class DFA(Automata):
         
         def buildSubsets():
             subsets = {}
-            stack = this.states.elements.copy()
+            stack = [eClosure(this.states.elements.copy()[0])]
 
-            while len(stack) > 0:
-                state = stack.pop(0)
-
-                initial = eClosure(state)
-                initial.sort()
-                            
-                initial, exists = setExists(initial, subsets)
-
-                if not exists:
+            while len(stack) > 0:                            
+                initial = stack.pop(0)
+                
+                if initial not in subsets:
                     subsets[initial] = {}
-                    for value in initial:
-                        stack.append(State(value))
-
                     for symbol in this.symbols:
                         subsets[initial][symbol] = Set()
 
@@ -330,11 +322,13 @@ class DFA(Automata):
 
                 for symbol in this.symbols:
                     statesCopy = (subsets[initial][symbol]).copy()
+                    statesCopy.sort()
 
                     if len(statesCopy) > 0:                
                         _, exists = setExists(statesCopy, subsets, True)
                         if not exists:
                             subsets[statesCopy] = {}
+                            stack.append(statesCopy)
 
                             for symbol in this.symbols:
                                 subsets[statesCopy][symbol] = Set()

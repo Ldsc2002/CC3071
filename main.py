@@ -4,18 +4,18 @@ options = [
     "(a*|b*)c",
     "(b|b)*abb(a|b)*", 
     "(a|E)b(a+)c?",
-    "(a|b)*a(a|b)(a|b)", #TODO fix subsets missing states
+    "(a|b)*a(a|b)(a|b)",
     "b*ab?",
-    "b+abc+", #TODO fix direct missing transitions
+    "b+abc+",
     "0(0|1)*0",
     "((E|0)1*)*",
-    "(0|1)*0(0|1)(0|1)", #TODO fix subsets missing states and transitions
+    "(0|1)*0(0|1)(0|1)",
     "(00)*(11)*",
     "(0|1)1*(0|1)",
-    "0?(1|E)?0*", #TODO fix subsets has extra states
+    "0?(1|E)?0*",
     "((1?)*)*",
     "(01)*(10)*",
-    "a(a?b*|c+)b|baa" #TODO fix direct missing one transition
+    "a(a?b*|c+)b|baa"
 ]
 
 testStrings = [
