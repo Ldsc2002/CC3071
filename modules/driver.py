@@ -5,6 +5,11 @@ from modules.components.DFA import *
 from modules.components.minimizedDFA import *
 from modules.common.utils import *
 from modules.components.automataTester import *
+from modules.components.yalexParser import *
+
+def readYalex(file): 
+    yalex = YalexParser(file)
+    return yalex.regex
 
 def generateNFA(regex, simulate = None):
     checkFolder("out/")
