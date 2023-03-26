@@ -1,7 +1,7 @@
 from modules.driver import isDebugging, isDebugging, selectOption, readYalex
 
 yalexOptions = [
-    "Yalex/1.yal",
+    "data/1.yal",
 ]
 
 if __name__ == '__main__':
