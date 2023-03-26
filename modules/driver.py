@@ -9,7 +9,13 @@ from modules.components.yalexParser import *
 
 def readYalex(file): 
     yalex = YalexParser(file)
-    return yalex.regex
+    print("Infix from Yalex file: " + yalex.regex)
+    
+    # regex = Regex(yalex.regex)
+    # postfix = regex.postfix
+
+    # tree = RegexTree(postfix, yalex.regex)
+    # tree.printTree()
 
 def generateNFA(regex, simulate = None):
     checkFolder("out/")

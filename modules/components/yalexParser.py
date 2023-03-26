@@ -107,7 +107,11 @@ class YalexParser():
 
                     ruleName = rule[start + 1:end].strip()
                 else:
-                    start = rule.index("|")
+                    start = 0
+
+                    if "|" in rule:
+                        start = rule.index("|")
+                    
                     end = rule.index("{")
 
                     ruleName = rule[start + 1:end].strip()
@@ -116,4 +120,103 @@ class YalexParser():
             else:
                 rules[rule.strip()] = ""
 
-        print("here")
+        stack = []
+        for key in lets:
+            if isinstance(lets[key], list):
+                newVals = []
+                case = 0
+                
+                for val in lets[key]:
+                    if isinstance(val, str) and "-" in val:
+                        case = 1
+                        break
+                    elif isinstance(val, str) and "\\" in val:
+                        case = 2
+                        break
+
+
+                if case == 1:
+                    for val in lets[key]:
+                        start = ord(val[0])
+                        end = ord(val[2])
+
+                        for x in range(start, end + 1):
+                            newVals.append(chr(x))
+                    
+                    lets[key] = newVals
+
+                elif case == 2:
+                    newVals = []
+                    for val in lets[key]:
+                        if val.startswith("\\"):
+                            val = val.replace("\\", "")
+
+                            if val == "n":
+                                newVals.append(ord("\n"))
+                            elif val == "t":
+                                newVals.append(ord("\t"))
+                            elif val == "r":
+                                newVals.append(ord("\r"))
+                            elif val == "f":
+                                newVals.append(ord("\f"))
+                            elif val == "s":
+                                newVals.append(ord(" "))
+                            else: 
+                                raise Exception("Invalid escape character: " + val)
+                        else:
+                            newVals.append(ord(val))
+
+                    lets[key] = newVals
+
+            else:   
+                stack.append(key)
+
+        regexStack = []
+        for key in stack:
+            operators = ["+", "*", "?", "|", "(", ")", ".", "[", "]", "-"]
+            val = lets[key]
+
+            x = 0
+            while (True):
+                if val[x] in operators:
+                    regexStack.append(val[x])
+                    x += 1
+
+                else:
+                    tempStr = ""
+                    while not val[x] in operators:
+                        tempStr += val[x]
+
+                        x += 1
+
+                        if x >= len(val):
+                            break
+
+                    regexStack.append(tempStr)
+
+                if x >= len(val):
+                    break
+
+        regex = ""
+        for val in regexStack:
+            if val in lets:
+                regex += "("
+
+                for x in range(len(lets[val])):
+                    if isinstance(lets[val][x], int):
+                        regex += "'" + str(lets[val][x]) + "'"
+                    else:
+                        regex += lets[val][x]
+
+                    if x != len(lets[val]) - 1:
+                        regex += "|"
+
+                regex += ")"
+                
+            else:
+                regex += val
+                
+                if val != regexStack[-1] and val != ")" and val != "(" and val != "|":
+                    regex += "|"
+
+        return regex
