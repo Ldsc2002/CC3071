@@ -8,14 +8,22 @@ from modules.components.automataTester import *
 from modules.components.yalexParser import *
 
 def readYalex(file): 
+    checkFolder("out/")
+    deleteAllFiles("out/")
+
+    print("\n ----- Reading Yalex file -----")
+
     yalex = YalexParser(file)
     print("Infix from Yalex file: " + yalex.regex)
     
-    # regex = Regex(yalex.regex)
-    # postfix = regex.postfix
+    regex = Regex(yalex.regex, yalex.alphabet)
+    postfix = regex.postfix
 
-    # tree = RegexTree(postfix, yalex.regex)
-    # tree.printTree()
+    print("\nParsed Infix: " + regex.validatedInfix)
+    print("\nPostfix: " + postfix)
+
+    tree = RegexTree(postfix, file.split("/")[-1])
+    tree.printTree()
 
 def generateNFA(regex, simulate = None):
     checkFolder("out/")

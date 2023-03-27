@@ -1,5 +1,6 @@
 class YalexParser():
     def __init__(this, file):
+        this.alphabet = []
         this.regex = this.parse(file)
 
     def parse(this, file):
@@ -67,28 +68,41 @@ class YalexParser():
                         lastIndex = endB + 1
 
                 else:
-                    letVal = letVal[1:-1]
+                    testCount = letVal.count("'")
+                    if testCount == 0:
+                        testCount = letVal.count('"')
 
-                    tempArray = []
-                    currentIndex = -1
-                    for x in range(len(letVal)):
-                        char = letVal[x]
+                    if testCount > 2:
+                        letVal = letVal[1:-1]
 
-                        if currentIndex > x:
-                            continue
-                        elif currentIndex == x:
-                            currentIndex = -1
+                        tempArray = []
+                        currentIndex = -1
+                        for x in range(len(letVal)):
+                            char = letVal[x]
 
-                        if char == "'":
-                            if currentIndex == -1:
-                                currentIndex = x
-                        
-                        elif currentIndex != -1:
-                            start = currentIndex + 1
-                            end = letVal.index("'", start)
+                            if currentIndex > x:
+                                continue
+                            elif currentIndex == x:
+                                currentIndex = -1
+
+                            if char == "'":
+                                if currentIndex == -1:
+                                    currentIndex = x
                             
-                            tempArray.append(letVal[start:end])
-                            currentIndex = end + 1
+                            elif currentIndex != -1:
+                                start = currentIndex + 1
+                                end = letVal.index("'", start)
+                                
+                                tempArray.append(letVal[start:end])
+                                currentIndex = end + 1
+                    
+                    else:
+                        letVal = letVal[1:-1]
+                        
+                        tempArray = []
+                        for char in letVal:
+                            if char != "'" and char != '"':
+                                tempArray.append(char)
                         
                 letVal = tempArray
 
@@ -121,6 +135,7 @@ class YalexParser():
                 rules[rule.strip()] = ""
 
         stack = []
+        alphabet = []
         for key in lets:
             if isinstance(lets[key], list):
                 newVals = []
@@ -134,13 +149,13 @@ class YalexParser():
                         case = 2
                         break
 
-
                 if case == 1:
                     for val in lets[key]:
                         start = ord(val[0])
                         end = ord(val[2])
 
                         for x in range(start, end + 1):
+                            alphabet.append(chr(x))
                             newVals.append(chr(x))
                     
                     lets[key] = newVals
@@ -166,10 +181,19 @@ class YalexParser():
                         else:
                             newVals.append(ord(val))
 
+                    for val in newVals:
+                        alphabet.append(val)
+
                     lets[key] = newVals
+
+                else:
+                    for val in lets[key]:
+                        alphabet.append(val)
 
             else:   
                 stack.append(key)
+
+        this.alphabet = alphabet
 
         regexStack = []
         for key in stack:
@@ -179,7 +203,14 @@ class YalexParser():
             x = 0
             while (True):
                 if val[x] in operators:
-                    regexStack.append(val[x])
+                    if val[x] != ".": #TODO check if this is correct
+                        if val[x] == "[":
+                            regexStack.append("(")
+                        elif val[x] == "]":
+                            regexStack.append(")")
+                        else:
+                            regexStack.append(val[x])
+                        
                     x += 1
 
                 else:
@@ -192,7 +223,30 @@ class YalexParser():
                         if x >= len(val):
                             break
 
-                    regexStack.append(tempStr)
+                    if tempStr in lets and isinstance(lets[tempStr], str):
+                        tempOperators = ""
+                        newTempStr = ""
+                        
+                        for char in lets[tempStr]:
+                            if char in operators:
+                                tempOperators += char
+                            else:
+                                newTempStr += char
+
+                        if newTempStr in lets:
+                            regexStack.append(newTempStr)
+
+                            for char in tempOperators:
+                                regexStack.append(char)
+                        else:
+                            regexStack.append(tempStr)
+
+                    else:
+                        if "'" in tempStr:
+                            tempStr = tempStr.replace("'", "")
+                        
+                        if len(tempStr) > 0:
+                            regexStack.append(tempStr)
 
                 if x >= len(val):
                     break

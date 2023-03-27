@@ -20,7 +20,27 @@ class RegexTree():
             this.postfix = this.postfix + '#.'
 
         stack = []
-        for token in this.postfix:
+        skip = False
+
+        for x in range(len(this.postfix)):
+            token = this.postfix[x]
+            
+            if skip:
+                if token == "'":
+                    skip = False
+                continue
+
+            if token == "'":
+                tempToken = token
+
+                while True:
+                    tempToken += this.postfix[this.postfix.index(tempToken[-1], x) + 1]
+
+                    if tempToken[-1] == "'":
+                        token = tempToken
+                        skip = True
+                        break
+
             if token == '.':
                 right = stack.pop()
                 left = stack.pop()
@@ -40,6 +60,10 @@ class RegexTree():
                 stack.append(Node('.', left, Node('*', left)))
             else:
                 stack.append(Node(token))
+
+        if len(stack) != 1:
+            raise Exception("Invalid postfix expression")
+
         return stack.pop()
 
     def printTree(this):

@@ -1,5 +1,6 @@
 class Regex():
-    def __init__(this, infix):
+    def __init__(this, infix, alphabet = None):
+        this.alphabet = alphabet
         this.infix = infix
         this.validatedInfix = None
         this.postfix = this.infixToPostfix(infix)
@@ -40,13 +41,29 @@ class Regex():
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'E'
         ]
 
+        if this.alphabet:
+            alphabet = this.alphabet
+
         symbols = ['|', '.']
         unary = ['*', '?', '+']
-        validForConcat = alphabet + ['(', ')'] + unary
+        validForConcat = alphabet + ['(', ')'] + unary + ["'"]
 
         # Add missing concatenation symbols
         newInfix = ''
+        readingAscii = False
+
         for x in range(len(infix)):
+            if readingAscii:
+                newInfix = newInfix + infix[x]
+
+                if infix[x] == "'":
+                    readingAscii = False
+                
+                continue
+
+            if infix[x] == "'":
+                readingAscii = True
+
             if x > 0 and x < len(infix):
                 if infix[x - 1] in alphabet and infix[x] in alphabet:
                     newInfix = newInfix + '.'
@@ -57,7 +74,7 @@ class Regex():
                 elif (infix[x - 1] in alphabet or infix[x - 1] in unary) and infix[x] == '(':
                     newInfix = newInfix + '.'
 
-                elif infix[x -1] == ')' and infix[x] == '(':
+                elif infix[x - 1] == ')' and infix[x] == '(':
                     newInfix = newInfix + '.'
 
                 elif infix[x - 1] == ')' and infix[x] in alphabet:
@@ -71,8 +88,28 @@ class Regex():
         closeParen = 0
         closeBeforeOpen = False
 
+        skip = False
+
         for x in range(len(infix)):
             c = infix[x]
+
+            if skip:
+                if c == "'":
+                    skip = False
+                
+                continue
+
+            elif c == "'":
+                tempCounter = x + 1
+                tempC = ""
+
+                while tempCounter < len(infix) and infix[tempCounter] != "'":
+                    tempC = tempC + infix[tempCounter]
+                    tempCounter += 1
+
+                c = int(tempC)
+
+                skip = True
 
             if c in symbols:
                 if x == 0 or x == len(infix) - 1:
