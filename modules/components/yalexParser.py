@@ -272,20 +272,30 @@ class YalexParser():
 
         regex = ""
         for val in regexStack:
-            if len(regex) > 0 and regex[-1] != "(" and regex[-1] != ")" and regex[-1] != "|" and val not in operators:
+            if (len(regex) > 0 and 
+                regex[-1] != "(" and 
+                regex[-1] != ")" and 
+                regex[-1] != "|" and 
+                val not in operators):
+                
                 regex = regex + "|"
 
             if val in lets:
                 regex += "("
 
                 for x in range(len(lets[val])):
+                    if (len(regex) > 0 and 
+                        regex[-1] != "(" and 
+                        regex[-1] != ")" and 
+                        lets[val][x] != "(" and
+                        lets[val][x] != ")"):
+                        
+                        regex = regex + "|"
+
                     if isinstance(lets[val][x], int):
                         regex += "'" + str(lets[val][x]) + "'"
                     else:
                         regex += lets[val][x]
-
-                    if x != len(lets[val]) - 1:
-                        regex += "|"
 
                 regex += ")"
                 
@@ -294,5 +304,7 @@ class YalexParser():
 
         if "E" in regex:
             this.alphabet.append("E")
+        if "_" in regex:
+            this.alphabet.append("_")
 
         return regex
