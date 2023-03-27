@@ -99,10 +99,19 @@ class YalexParser():
                     else:
                         letVal = letVal[1:-1]
                         
-                        tempArray = []
-                        for char in letVal:
-                            if char != "'" and char != '"':
-                                tempArray.append(char)
+                        if "\\" in letVal:
+                            letVal = letVal[1:-1]
+                            
+                            tempArray = []
+                            for char in letVal:
+                                if char != "\\":
+                                    tempArray.append("\\" + char)
+
+                        else:
+                            tempArray = []
+                            for char in letVal:
+                                if char != "'" and char != '"':
+                                    tempArray.append(char)
                         
                 letVal = tempArray
 
