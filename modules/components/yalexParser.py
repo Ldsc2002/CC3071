@@ -4,6 +4,8 @@ class YalexParser():
         this.regex = this.parse(file)
 
     def parse(this, file):
+        operators = ["+", "*", "?", "|", "(", ")", ".", "[", "]"]
+
         letArray = []
         rulesArray = []
 
@@ -101,7 +103,7 @@ class YalexParser():
                         
                         if "\\" in letVal:
                             letVal = letVal[1:-1]
-                            
+
                             tempArray = []
                             for char in letVal:
                                 if char != "\\":
@@ -206,19 +208,27 @@ class YalexParser():
 
         regexStack = []
         for key in stack:
-            operators = ["+", "*", "?", "|", "(", ")", ".", "[", "]", "-"]
             val = lets[key]
 
             x = 0
             while (True):
                 if val[x] in operators:
-                    if val[x] != ".": #TODO check if this is correct
-                        if val[x] == "[":
-                            regexStack.append("(")
-                        elif val[x] == "]":
-                            regexStack.append(")")
-                        else:
-                            regexStack.append(val[x])
+                    if val[x] == "[":
+                        x += 1
+                        
+                        while not val[x] == "]":
+                            if val[x] != "'":
+                                if val[x] in operators or val[x] == "-":
+                                    regexStack.append("'" + str(ord(val[x])) + "'")
+                                    alphabet.append(ord(val[x]))
+                                else:
+                                    regexStack.append(val[x])
+                                    alphabet.append(val[x])
+                            
+                            x += 1
+                    
+                    elif val[x] != ".": #TODO check if this is correct
+                        regexStack.append(val[x])
                         
                     x += 1
 
@@ -262,6 +272,9 @@ class YalexParser():
 
         regex = ""
         for val in regexStack:
+            if len(regex) > 0 and regex[-1] != "(" and regex[-1] != ")" and regex[-1] != "|" and val not in operators:
+                regex = regex + "|"
+
             if val in lets:
                 regex += "("
 
@@ -278,8 +291,8 @@ class YalexParser():
                 
             else:
                 regex += val
-                
-                if val != regexStack[-1] and val != ")" and val != "(" and val != "|":
-                    regex += "|"
+
+        if "E" in regex:
+            this.alphabet.append("E")
 
         return regex
