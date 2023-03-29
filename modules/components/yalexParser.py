@@ -121,6 +121,7 @@ class YalexParser():
 
         rules = {}
         for rule in rulesArray:
+            rule = rule.replace("rule ", "")
             if "return" in rule:
                 start = rule.index("{")
                 end = rule.index("}")
@@ -135,17 +136,16 @@ class YalexParser():
                     start = 0
 
                     if "|" in rule:
-                        start = rule.index("|")
+                        start = rule.index("|") + 1
                     
                     end = rule.index("{")
 
-                    ruleName = rule[start + 1:end].strip()
+                    ruleName = rule[start:end].strip()
 
                 rules[ruleName] = returnVal
             else:
                 rules[rule.strip()] = ""
 
-        stack = []
         alphabet = []
         for key in lets:
             if isinstance(lets[key], list):
@@ -200,86 +200,98 @@ class YalexParser():
                 else:
                     for val in lets[key]:
                         alphabet.append(val)
+                        
+        regexStack = []
+        for key in rules:
+            if key in lets:
+                val = lets[key]
 
-            else:   
-                stack.append(key)
+                x = 0
+                while (True):
+                    if val[x] in operators:
+                        if val[x] == "[":
+                            x += 1                            
+                            regexStack.append("(")
+
+                            while not val[x] == "]":
+                                if val[x] != "'":
+                                    if val[x] in operators or val[x] == "-":
+                                        regexStack.append("'" + str(ord(val[x])) + "'")
+                                        alphabet.append(ord(val[x]))
+                                    else:
+                                        regexStack.append(val[x])
+                                        alphabet.append(val[x])
+
+                                   
+                                    regexStack.append("|")
+                                
+                                x += 1
+
+                            regexStack.pop() # Remove last "|"
+                            regexStack.append(")")
+
+                        x += 1
+
+                    else:
+                        tempStr = ""
+                        while not val[x] in operators:
+                            tempStr += val[x]
+
+                            x += 1
+
+                            if x >= len(val):
+                                break
+
+                        if tempStr in lets and isinstance(lets[tempStr], str):
+                            tempOperators = ""
+                            newTempStr = ""
+                            
+                            for char in lets[tempStr]:
+                                if char in operators:
+                                    tempOperators += char
+                                else:
+                                    newTempStr += char
+
+                            if newTempStr in lets:
+                                regexStack.append(newTempStr)
+
+                                for char in tempOperators:
+                                    regexStack.append(char)
+                                    regexStack.append("|")
+
+                                regexStack.pop() # Remove last "|"
+
+                            else:
+                                regexStack.append(tempStr)
+
+                        else:
+                            if "'" in tempStr:
+                                tempStr = tempStr.replace("'", "")
+                            
+                            if len(tempStr) > 0:
+                                regexStack.append(tempStr)
+
+                    if x >= len(val):
+                        break
+
+                if key != list(rules.keys())[-1]:
+                    regexStack.append("|")
+            
+            else:
+                for char in key:                    
+                    regexStack.append("'" + str(ord(char)) + "'")
+                    alphabet.append(ord(char)) 
+                    regexStack.append("|")
+
+                regexStack.pop() # Remove last "|"
+
+                if key != list(rules.keys())[-1]:
+                    regexStack.append("|")
 
         this.alphabet = alphabet
 
-        regexStack = []
-        for key in stack:
-            val = lets[key]
-
-            x = 0
-            while (True):
-                if val[x] in operators:
-                    if val[x] == "[":
-                        x += 1
-                        
-                        while not val[x] == "]":
-                            if val[x] != "'":
-                                if val[x] in operators or val[x] == "-":
-                                    regexStack.append("'" + str(ord(val[x])) + "'")
-                                    alphabet.append(ord(val[x]))
-                                else:
-                                    regexStack.append(val[x])
-                                    alphabet.append(val[x])
-                            
-                            x += 1
-                    
-                    elif val[x] != ".": #TODO check if this is correct
-                        regexStack.append(val[x])
-                        
-                    x += 1
-
-                else:
-                    tempStr = ""
-                    while not val[x] in operators:
-                        tempStr += val[x]
-
-                        x += 1
-
-                        if x >= len(val):
-                            break
-
-                    if tempStr in lets and isinstance(lets[tempStr], str):
-                        tempOperators = ""
-                        newTempStr = ""
-                        
-                        for char in lets[tempStr]:
-                            if char in operators:
-                                tempOperators += char
-                            else:
-                                newTempStr += char
-
-                        if newTempStr in lets:
-                            regexStack.append(newTempStr)
-
-                            for char in tempOperators:
-                                regexStack.append(char)
-                        else:
-                            regexStack.append(tempStr)
-
-                    else:
-                        if "'" in tempStr:
-                            tempStr = tempStr.replace("'", "")
-                        
-                        if len(tempStr) > 0:
-                            regexStack.append(tempStr)
-
-                if x >= len(val):
-                    break
-
         regex = ""
         for val in regexStack:
-            if (len(regex) > 0 and 
-                regex[-1] != "(" and 
-                regex[-1] != ")" and 
-                regex[-1] != "|" and 
-                val not in operators):
-                
-                regex = regex + "|"
-
             if val in lets:
                 regex += "("
 
@@ -302,6 +314,7 @@ class YalexParser():
             else:
                 regex += val
 
+        # TODO fix properly and remove this 
         if "E" in regex:
             this.alphabet.append("E")
         if "_" in regex:
