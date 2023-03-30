@@ -222,7 +222,6 @@ class YalexParser():
                                         regexStack.append(val[x])
                                         alphabet.append(val[x])
 
-                                   
                                     regexStack.append("|")
                                 
                                 x += 1
@@ -269,6 +268,9 @@ class YalexParser():
                                 tempStr = tempStr.replace("'", "")
                             
                             if len(tempStr) > 0:
+                                if len(tempStr) == 1:
+                                    alphabet.append(tempStr)
+
                                 regexStack.append(tempStr)
 
                     if x >= len(val):
@@ -278,7 +280,7 @@ class YalexParser():
                     regexStack.append("|")
             
             else:
-                for char in key:                    
+                for char in key:
                     regexStack.append("'" + str(ord(char)) + "'")
                     alphabet.append(ord(char)) 
                     regexStack.append("|")
@@ -308,16 +310,17 @@ class YalexParser():
                         regex += "'" + str(lets[val][x]) + "'"
                     else:
                         regex += lets[val][x]
+                        
+                        if (lets[val][x] not in this.alphabet and
+                            lets[val][x] != "(" and
+                            lets[val][x] != ")" and
+                            lets[val][x] not in operators):
+
+                            this.alphabet.append(lets[val][x])
 
                 regex += ")"
                 
             else:
                 regex += val
-
-        # TODO fix properly and remove this 
-        if "E" in regex:
-            this.alphabet.append("E")
-        if "_" in regex:
-            this.alphabet.append("_")
 
         return regex
