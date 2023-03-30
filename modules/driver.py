@@ -7,9 +7,10 @@ from modules.common.utils import *
 from modules.components.automataTester import *
 from modules.components.yalexParser import *
 
-def readYalex(file): 
-    checkFolder("out/")
-    deleteAllFiles("out/")
+def readYalex(file, delete = True):
+    if delete: 
+        checkFolder("out/")
+        deleteAllFiles("out/")
 
     print("\n ----- Reading Yalex file -----")
 
