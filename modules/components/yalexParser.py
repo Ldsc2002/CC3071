@@ -39,6 +39,11 @@ class YalexParser():
                         raise Exception("Missing operator '|' in rule: " + newLine)
                     elif len(rulesArray) == 0 and "|" in newLine and readingRule:
                         raise Exception("Extra operator '|' in rule: " + newLine)
+                    
+                    if newLine.count("'") % 2 != 0:
+                        raise Exception("Missing quote in rule: " + newLine)
+                    elif newLine.count('"') % 2 != 0:
+                        raise Exception("Missing quote in rule: " + newLine)
 
                     # Add line to the array
                     if readingRule:
@@ -56,8 +61,12 @@ class YalexParser():
         # Check for invalid rule names
         for key in rules:
             if len(key) > 1 and key not in lets:
-                raise Exception("Invalid rule name: " + key)
+                # Ignore rule names with quotes
+                if key.count("'") == 2 or key.count('"') == 2:
+                    continue
 
+                raise Exception("Invalid rule name: " + key)
+            
     def parse(this, file):
         operators = ["+", "*", "?", "|", "(", ")", ".", "[", "]"]
 
