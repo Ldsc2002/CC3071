@@ -3,23 +3,28 @@ class YalexParser():
         this.alphabet = []
         this.regex = this.parse(file)
 
-    def parse(this, file):
-        operators = ["+", "*", "?", "|", "(", ")", ".", "[", "]"]
-
+    def readFile(this, file):
         letArray = []
         rulesArray = []
 
         readingRule = False
-
         with open(file, "r") as file:
             lines = file.read().splitlines()
 
             for line in lines:
                 newLine = line.strip()
 
+                # Ignore empty lines and comments
                 if newLine == "" or newLine[0] == "#":
                     continue
 
+                # Check for unclosed comments
+                if "(*" in newLine and "*)" not in newLine:
+                    raise Exception("Missing closing comment tag: " + newLine)
+                elif "*)" in newLine and "(*" not in newLine:
+                    raise Exception("Missing opening comment tag: " + newLine)
+
+                # Remove comments
                 if "(*" in newLine and "*)" in newLine:
                     first = newLine.index("(*")
                     last = newLine.index("*)")
@@ -27,7 +32,15 @@ class YalexParser():
                     newLine = newLine[:first] + newLine[last + 2:]
                     newLine = newLine.strip()
 
+                # If line is not empty, validate it
                 if newLine != "": 
+                    # Check for invalid rule syntax
+                    if len(rulesArray) > 0 and "|" not in newLine and readingRule:
+                        raise Exception("Missing operator '|' in rule: " + newLine)
+                    elif len(rulesArray) == 0 and "|" in newLine and readingRule:
+                        raise Exception("Extra operator '|' in rule: " + newLine)
+
+                    # Add line to the array
                     if readingRule:
                         rulesArray.append(newLine)
                     else:
@@ -36,6 +49,19 @@ class YalexParser():
 
                         if newLine.startswith("rule"):
                             readingRule = True
+
+        return letArray, rulesArray
+    
+    def validateYalex(this, rules, lets):
+        # Check for invalid rule names
+        for key in rules:
+            if len(key) > 1 and key not in lets:
+                raise Exception("Invalid rule name: " + key)
+
+    def parse(this, file):
+        operators = ["+", "*", "?", "|", "(", ")", ".", "[", "]"]
+
+        letArray, rulesArray = this.readFile(file)
         
         lets = {}
         for let in letArray:
@@ -145,6 +171,8 @@ class YalexParser():
                 rules[ruleName] = returnVal
             else:
                 rules[rule.strip()] = ""
+
+        this.validateYalex(rules, lets)
 
         alphabet = []
         for key in lets:
