@@ -103,6 +103,11 @@ class Regex():
                 tempCounter = x + 1
                 tempC = ""
 
+                if infix[tempCounter] == "#":
+                    c = alphabet[0]
+                    skip = True
+                    continue
+
                 while tempCounter < len(infix) and infix[tempCounter] != "'":
                     tempC = tempC + infix[tempCounter]
                     tempCounter += 1

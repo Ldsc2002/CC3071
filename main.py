@@ -1,4 +1,4 @@
-from modules.driver import isDebugging, isDebugging, selectOption, readYalex, menuInput
+from modules.driver import isDebugging, isDebugging, selectOption, generateFromYalex
 
 yalexOptions = [
     "data/1.yal",
@@ -9,17 +9,8 @@ yalexOptions = [
 
 if __name__ == '__main__':
     if isDebugging():
-        operationMode = menuInput(["Test all yalex files", "Test a single yalex file"])
-
-        if operationMode == 1:
-            readYalex(yalexOptions.pop())
-
-            for file in yalexOptions:
-                readYalex(file, False)
-
-        elif operationMode == 2:
-            selected = selectOption(yalexOptions, "Select a yalex file to test")
-            readYalex(selected)
+        selected = selectOption(yalexOptions, "Select a yalex file to test")
+        generateFromYalex(selected)
     
     else:
         pass

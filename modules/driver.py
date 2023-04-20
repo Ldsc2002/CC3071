@@ -26,6 +26,28 @@ def readYalex(file, delete = True):
     tree = RegexTree(postfix, file.split("/")[-1])
     tree.printTree()
 
+def generateFromYalex(file):
+    checkFolder("out/")
+    deleteAllFiles("out/")
+
+    print("\n ----- Reading Yalex file -----")
+
+    yalex = YalexParser(file)
+    print("Infix from Yalex file: " + yalex.regex)
+    
+    regex = Regex(yalex.regex, yalex.alphabet)
+    postfix = regex.postfix
+
+    print("\nParsed Infix: " + regex.validatedInfix)
+    print("\nPostfix: " + postfix)
+
+    tree = RegexTree(postfix, file.split("/")[-1], True)
+    tree.printTree()
+
+    newDFA = DFA(tree, file.split("/")[-1])
+    newDFA.print()
+    newDFA.createImage()
+
 def generateNFA(regex, simulate = None):
     checkFolder("out/")
     deleteAllFiles("out/")

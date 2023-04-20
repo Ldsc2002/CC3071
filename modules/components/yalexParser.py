@@ -240,6 +240,8 @@ class YalexParser():
                         
         regexStack = []
         for key in rules:
+            regexStack.append("(")
+
             if key in lets:
                 val = lets[key]
 
@@ -265,6 +267,9 @@ class YalexParser():
 
                             regexStack.pop() # Remove last "|"
                             regexStack.append(")")
+
+                        elif val[x] in ["(", ")" , "|" , "*"]:
+                            regexStack.append(val[x])
 
                         x += 1
 
@@ -326,6 +331,17 @@ class YalexParser():
 
                 if key != list(rules.keys())[-1]:
                     regexStack.append("|")
+
+            if regexStack[-1] == "|":
+                regexStack.pop()
+
+        #     regexStack.append(".")
+        #     regexStack.append("'#" + key + "')")
+            regexStack.append(")")
+            regexStack.append("|")          
+
+        if regexStack[-1] == "|": 
+            regexStack.pop()
 
         this.alphabet = alphabet
 

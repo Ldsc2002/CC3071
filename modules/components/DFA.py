@@ -175,6 +175,7 @@ class DFA(Automata):
 
             finals = Set()
             stack = []
+            visited = []
             transitionTable = {}
 
             root = getFirstPos(node)
@@ -201,8 +202,9 @@ class DFA(Automata):
                     transitionTable[str(root)][symbol] = str(transitionTable[str(root)][symbol].elements)
 
                     if len(destState) > 0:
-                        if str(destState) not in transitionTable:
+                        if str(destState) not in transitionTable and destState not in visited:
                             stack.append(destState)
+                            visited.append(destState)
 
                         if str(destState) not in stateDict:
                             stateDict[str(destState)] = len(stateDict)
