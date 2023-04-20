@@ -41,10 +41,7 @@ class DFA(Automata):
 
         def isNullable(node):
             if node.left is None and node.right is None:
-                if node.value != 'E':
-                    return False
-                else:
-                    return True
+                return False
 
             elif node.value == '|':
                 return isNullable(node.left) or isNullable(node.right)
@@ -57,11 +54,8 @@ class DFA(Automata):
             
         def getFirstPos(node):
             if node.left is None and node.right is None:
-                if node.value != 'E':
-                    return [node.stateDFA]
-                else:
-                    return []
-
+                return [node.stateDFA]
+            
             elif node.value == '|':
                 return getFirstPos(node.left) + getFirstPos(node.right)
 
@@ -76,10 +70,7 @@ class DFA(Automata):
                 
         def getLastPos(node):
             if node.left is None and node.right is None:
-                if node.value != 'E':
-                    return [node.stateDFA]
-                else:
-                    return []
+                return [node.stateDFA]
 
             elif node.value == '|':
                 return getLastPos(node.left) + getLastPos(node.right)
@@ -147,7 +138,7 @@ class DFA(Automata):
             allNodes = getAllNodes(node)
             
             for nodeTest in allNodes:
-                if nodeTest.value not in operators and nodeTest.value != "E":
+                if nodeTest.value not in operators:
                     nodeTest.stateDFA = stateCount
                     stateCount += 1     
 
@@ -159,7 +150,7 @@ class DFA(Automata):
                 if nodeTest.value == "#":
                     finalState = nodeTest.stateDFA
 
-                if nodeTest.value not in operators and nodeTest.value != "E":
+                if nodeTest.value not in operators:
                     followPosTable[nodeTest.stateDFA] = getFollowPos(nodeTest, allNodes.copy())
 
             return followPosTable, finalState
@@ -170,7 +161,7 @@ class DFA(Automata):
             symbols = Set()
             
             for nodeTest in allNodes:
-                if nodeTest.value not in operators and nodeTest.value != "#" and nodeTest.value != "E":
+                if nodeTest.value not in operators and nodeTest.value != "#":
                     symbols.add(nodeTest.value)
 
             finals = Set()
