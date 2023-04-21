@@ -231,8 +231,12 @@ class DFA(Automata):
             this.symbols = Set()
             this.transitions = Set()
             this.final = Set()
+            skips = Set()
 
             for transition in transitions:
+                if transition in skips:
+                    continue
+
                 state = State(transition)
                 this.states.add(state)
 
@@ -243,6 +247,11 @@ class DFA(Automata):
                     this.initial = state
 
                 for symbol in transitions[transition]:
+                    if symbol.startswith("'#") and transitions[transition][symbol] in finalStates:
+                        skips.add(transitions[transition][symbol])
+                        this.final.add(state)
+                        continue
+
                     this.symbols.add(symbol)
                     this.transitions.add(Transition(state, State(transitions[transition][symbol]), Symbol(symbol)))
         
