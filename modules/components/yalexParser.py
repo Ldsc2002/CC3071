@@ -335,9 +335,8 @@ class YalexParser():
             if regexStack[-1] == "|":
                 regexStack.pop()
 
-        #     regexStack.append(".")
-        #     regexStack.append("'#" + key + "')")
-            regexStack.append(")")
+            regexStack.append(".")
+            regexStack.append("'#" + key + "')")
             regexStack.append("|")          
 
         if regexStack[-1] == "|": 

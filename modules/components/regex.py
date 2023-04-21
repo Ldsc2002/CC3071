@@ -13,20 +13,35 @@ class Regex():
         pofix = ""
         stack = []
 
-        for c in regex:
-            if c == '(':
+        skip = False
+        for x in range(len(regex)):
+            c = regex[x]
+
+            if skip:
+                pofix = pofix + c
+                
+                if c == "'":
+                    skip = False
+
+            elif c == '(':
                 stack.append(c)
+
             elif c == ')':
                 while stack and stack[-1] != '(':
                     pofix = pofix + stack.pop()
                 stack.pop()
+                
             elif c in specials:
                 while stack and stack[-1] != '(' and specials.get(
                     c, 0) <= specials.get(stack[-1], 0):
                     pofix = pofix + stack.pop()
 
                 stack.append(c)
+
             else:
+                if c == "'" and regex[x + 1] == "#":
+                    skip = True
+
                 pofix = pofix + c
 
         while stack:
