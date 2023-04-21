@@ -250,6 +250,7 @@ class DFA(Automata):
                     if symbol.startswith("'#") and transitions[transition][symbol] in finalStates:
                         skips.add(transitions[transition][symbol])
                         this.final.add(state)
+                        state.tokenID = symbol[2:-1]
                         continue
 
                     this.symbols.add(symbol)

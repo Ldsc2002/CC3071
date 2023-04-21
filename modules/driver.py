@@ -6,6 +6,7 @@ from modules.components.minimizedDFA import *
 from modules.common.utils import *
 from modules.components.automataTester import *
 from modules.components.yalexParser import *
+from modules.components.codeGen import *
 
 def readYalex(file, delete = True):
     if delete: 
@@ -47,6 +48,8 @@ def generateFromYalex(file):
     newDFA = DFA(tree, file.split("/")[-1])
     newDFA.print()
     newDFA.createImage()
+
+    CodeGen(newDFA, yalex.tokens)
 
 def generateNFA(regex, simulate = None):
     checkFolder("out/")

@@ -375,4 +375,6 @@ class YalexParser():
             else:
                 regex += val
 
+        this.tokens = rules
+
         return regex
