@@ -49,6 +49,9 @@ class CodeGen():
                         else:    
                             file.write("\t\t" + this.tokens[token] + "\n")
 
+                file.write("\telse:\n")
+                file.write("\t\traise Exception(\'Invalid token: \' + token)\n")
+
                 file.write("with open(\"input.txt\", \"r\") as file:\n")
                 file.write("\tinput = file.read()\n")
     
