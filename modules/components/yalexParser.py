@@ -13,6 +13,7 @@ class YalexParser():
 
             for line in lines:
                 newLine = line.strip()
+                newLine = newLine.replace('"', "'")
 
                 # Ignore empty lines and comments
                 if newLine == "" or newLine[0] == "#":
@@ -60,7 +61,7 @@ class YalexParser():
     def validateYalex(this, rules, lets):
         # Check for invalid rule names
         for key in rules:
-            if len(key) > 1 and key not in lets:
+            if len(key) > 2 and key not in lets: # TODO fix properly
                 # Ignore rule names with quotes
                 if key.count("'") == 2 or key.count('"') == 2:
                     continue
