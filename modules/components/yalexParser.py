@@ -9,9 +9,14 @@ class YalexParser():
 
         readingRule = False
         with open(file, "r") as file:
+            skip = 0
             lines = file.read().splitlines()
 
             for line in lines:
+                if skip > 0:
+                    skip -= 1
+                    continue
+
                 newLine = line.strip()
                 newLine = newLine.replace('"', "'")
 
@@ -21,8 +26,12 @@ class YalexParser():
 
                 # Check for unclosed comments
                 if "(*" in newLine and "*)" not in newLine:
+                    if "'(*" in newLine or '"(*' in newLine:
+                        continue
                     raise Exception("Missing closing comment tag: " + newLine)
                 elif "*)" in newLine and "(*" not in newLine:
+                    if "'*)" in newLine or '"*)' in newLine:
+                        continue
                     raise Exception("Missing opening comment tag: " + newLine)
 
                 # Remove comments
@@ -33,8 +42,20 @@ class YalexParser():
                     newLine = newLine[:first] + newLine[last + 2:]
                     newLine = newLine.strip()
 
+                if "{" in newLine and "}" not in newLine:
+                    currentIndex = lines.index(line)
+                    while "}" not in newLine:
+                        newLine += " " + lines[currentIndex + 1]
+                        currentIndex += 1
+                        skip += 1
+
                 # If line is not empty, validate it
                 if newLine != "": 
+                    if readingRule and (
+                        newLine.startswith("(") or
+                        newLine.startswith("{")):
+                        readingRule = False
+
                     # Check for invalid rule syntax
                     if len(rulesArray) > 0 and "|" not in newLine and readingRule:
                         raise Exception("Missing operator '|' in rule: " + newLine)
@@ -51,6 +72,8 @@ class YalexParser():
                         rulesArray.append(newLine)
                     else:
                         if newLine.startswith("let"):
+                            if newLine.split(" ")[0] != "let":
+                                newLine = "let " + newLine.split(" ", 1)[1]
                             letArray.append(newLine)
 
                         if newLine.startswith("rule"):
@@ -61,8 +84,9 @@ class YalexParser():
     def validateYalex(this, rules, lets):
         # Check for invalid rule names
         for key in rules:
-            if len(key) > 2 and key not in lets: # TODO fix properly
+            if len(key) > 1 and key not in lets:
                 # Ignore rule names with quotes
+                print(key.count("'"))
                 if key.count("'") == 2 or key.count('"') == 2:
                     continue
 
@@ -76,6 +100,18 @@ class YalexParser():
         lets = {}
         for let in letArray:
             let = let.replace("let ", "")
+            
+            # TODO find a better way to do this
+            prev = ""
+            newLet = ""
+            for c in let:
+                if c == " " and (prev != "'"):
+                    continue
+                
+                newLet += c
+                prev = c
+            let = newLet
+
             let = let.strip()
             let = let.split("=")
 
@@ -163,7 +199,7 @@ class YalexParser():
                 end = rule.index("}")
                 returnVal = rule[start + 1:end].strip() + rule[end + 1:].strip()
 
-                if "'" in rule:
+                if "'" in rule.split("{")[0]:
                     start = rule.index("'")
                     end = rule.index("'", start + 1)
 

@@ -1,6 +1,7 @@
 from modules.driver import isDebugging, isDebugging, selectOption, generateFromYalex
 
 yalexOptions = [
+    "data/0.yal",
     "data/1.yal",
     "data/2.yal",
     "data/3.yal",
