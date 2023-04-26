@@ -84,7 +84,7 @@ class YalexParser():
     def validateYalex(this, rules, lets):
         # Check for invalid rule names
         for key in rules:
-            if len(key) > 1 and key not in lets:
+            if len(key) > 2 and key not in lets:
                 # Ignore rule names with quotes
                 print(key.count("'"))
                 if key.count("'") == 2 or key.count('"') == 2:

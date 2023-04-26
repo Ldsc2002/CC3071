@@ -36,9 +36,9 @@ class CodeGen():
                     transitionsDict[transition.source.id][transition.symbol.cid] = transition.target.id
                 file.write("transitions = " + str(transitionsDict) + "\n")
 
-                file.write("def executeToken(token):\n")
+                file.write("def executeToken(token, text):\n")
                 for token in this.tokens:
-                    file.write("\tif token == \"" + token + "\":\n")
+                    file.write("\tif token == \"" + token + "\" or text == \"" + token + "\":\n")
 
                     if this.tokens[token] == "":
                         file.write("\t\treturn None\n")
@@ -49,25 +49,32 @@ class CodeGen():
                         else:    
                             file.write("\t\t" + this.tokens[token] + "\n")
 
-                file.write("\telse:\n")
-                file.write("\t\traise Exception(\'Invalid token: \' + token)\n")
-
                 file.write("with open(\"input.txt\", \"r\") as file:\n")
-                file.write("\tinput = file.read()\n")
-    
+                file.write("\tdata = file.read().splitlines()\n")
+                file.write("newData = ''\n")
+                file.write("for item in data:\n")
+                file.write("\tnewData += item\n")
+                file.write("\tnewData += ' '\n")
+                file.write("data = newData\n")
+
                 file.write("current = 0\n")
-                file.write("for symbol in input:\n")
+                file.write("valid = ''\n")
+                file.write("for symbol in data:\n")
                 file.write("\tif symbol not in transitions[current]:\n")
-                file.write("\t\tprint('Invalid symbol found: ' + symbol)\n")
-                file.write("\t\tbreak\n")
-                file.write("\telse:\n")
-                file.write("\t\tcurrent = transitions[current][symbol]\n")
+                file.write("\t\tif len(valid) > 0:\n")
+                file.write("\t\t\tprint('Valid token found: ' + valid)\n")
                 
-                file.write("if current in finals:\n")
-                file.write("\tprint(\"The string '\" + input + \"' is accepted by the automata.\")\n")
-                file.write("\texecuteToken(states[current])\n")
-                file.write("else:\n")
-                file.write("\tprint(\"The string '\" + input + \"' is not accepted by the automata.\")\n")
+                if this.isDebugging:
+                    file.write("\t\t\tprint(executeToken(states[current], valid))\n")
+                else:
+                    file.write("\t\t\texecuteToken(states[current], valid)\n")
+                
+                file.write("\t\tcurrent = 0\n")
+                file.write("\t\tvalid = ''\n")
+                file.write("\t\tprint('Invalid symbol found: ' + symbol)\n")
+                file.write("\telse:\n")
+                file.write("\t\tvalid += symbol\n")
+                file.write("\t\tcurrent = transitions[current][symbol]\n")
 
                 print(f"{filename} created successfully.")
         
