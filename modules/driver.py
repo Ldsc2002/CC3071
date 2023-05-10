@@ -6,6 +6,7 @@ from modules.components.minimizedDFA import *
 from modules.common.utils import *
 from modules.components.automataTester import *
 from modules.components.yalexParser import *
+from modules.components.yaparParser import *
 from modules.components.codeGen import *
 
 def readYalex(file, delete = True):
@@ -26,6 +27,16 @@ def readYalex(file, delete = True):
 
     tree = RegexTree(postfix, file.split("/")[-1])
     tree.printTree()
+
+def readYapar(yalex, yapar, delete = True):
+    if delete: 
+        checkFolder("out/")
+        deleteAllFiles("out/")
+
+    print("\n ----- Reading Yapar file -----")
+
+    yalex = YalexParser(yalex)
+    yapar = YaparParser(yapar, yalex)
 
 def generateFromYalex(file):
     checkFolder("out/")

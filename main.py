@@ -1,17 +1,23 @@
-from modules.driver import isDebugging, isDebugging, selectOption, generateFromYalex
+from modules.driver import isDebugging, isDebugging, menuInput, readYapar
 
 yalexOptions = [
-    "data/0.yal",
     "data/1.yal",
     "data/2.yal",
     "data/3.yal",
     "data/4.yal",
 ]
 
+yaparOptions = [
+    "data/1.yalp",
+    "data/2.yalp",
+    "data/3.yalp",
+    "data/4.yalp",
+]
+
 if __name__ == '__main__':
     if isDebugging():
-        selected = selectOption(yalexOptions, "Select a yalex file to test")
-        generateFromYalex(selected)
+        selected = menuInput(yaparOptions, "Select a yapar file to test")
+        readYapar(yalexOptions[selected - 1], yaparOptions[selected - 1])
     
     else:
         pass
