@@ -4,7 +4,10 @@ class YaparParser():
         this.yalex = yalex
         this.parse()
 
-    def parse(this):
+    def parse(this):        
+        def closure(production):
+            newProduction = [production]
+
         tokens = []
         productions = {}
         readingTokens = True
@@ -46,14 +49,24 @@ class YaparParser():
                         line = line.strip()
                         
                         if prevProduction == None:
-                            productions[line] = ''
+                            productions[line] = []
                             prevProduction = line
 
                         else: 
-                            productions[prevProduction] += line
+                            if line.count(' ') > 0:
+                                line = line.split(' ')
+                                for token in line:
+                                    if token == ';':
+                                        prevProduction = None
+                                        break
 
-                            if line == ';' or line.endswith(';'):
-                                prevProduction = None
+                                    productions[prevProduction].append(token)
+                            else:
+                                if line == ';':
+                                    prevProduction = None
+                                    continue
+
+                                productions[prevProduction].append(line)
 
         # Create a list of tokens from the yalex file
         yalexTokens = []
@@ -68,5 +81,6 @@ class YaparParser():
             if token not in yalexTokens:
                 raise Exception("Token '" + token + "' not found in yalex file")
 
+        # TODO delete
         print("Tokens: " + str(tokens))
         print("Productions: " + str(productions))
