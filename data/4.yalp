@@ -27,8 +27,6 @@
 /* F -> number */
 /* F -> id */
 
-%%
-
 %token ID
 %token NUMBER
 %token LPAREN
@@ -41,6 +39,8 @@
 %token DIV
 %token PLUS
 %token TIMES
+
+%%
 
 p:
     t
