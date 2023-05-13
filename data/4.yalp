@@ -27,6 +27,8 @@
 /* F -> number */
 /* F -> id */
 
+%%
+
 %token ID
 %token NUMBER
 %token LPAREN
