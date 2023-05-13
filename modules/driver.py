@@ -37,6 +37,8 @@ def readYapar(yalex, yapar, delete = True):
 
     yalex = YalexParser(yalex)
     yapar = YaparParser(yapar, yalex)
+    yapar.print()
+    yapar.createImage()
 
 def generateFromYalex(file):
     checkFolder("out/")

@@ -22,27 +22,52 @@ class Automata():
         this.symbols = symbols
         this.initial = initial
         this.transitions = transitions
+        this.shape = "circle"
 
     def createImage(this):
         g = Digraph('AFN', filename=("out/" + this.filename), format='png')
         g.attr(rankdir='LR')
 
         for state in this.states:
+            if isinstance(state.id, list):
+                nodeText = ""
+                for s in state.id:
+                    nodeText += str(s) + "\n"
+                nodeText = nodeText.strip()
+            else:
+                nodeText = str(state.id)
+
             if state in this.final:
-                g.node(str(state.id), label=str(state.id), shape='doublecircle')
+                g.node(nodeText, label=nodeText, shape=('double' + this.shape))
 
                 if state == this.initial:
                     g.node("", shape='none', width='0', height='0')
-                    g.edge("", str(state.id))
+                    g.edge("", nodeText)
             else:
                 if state == this.initial:
                     g.node("", shape='none', width='0', height='0')
-                    g.edge("", str(state.id))
+                    g.edge("", nodeText)
                     
-                g.node(str(state.id), label=str(state.id), shape='circle')
+                g.node(nodeText, label=nodeText, shape=this.shape)
 
         for transition in this.transitions:
-            g.edge(str(transition.source.id), str(transition.target.id), label=transition.symbol.cid)
+            if isinstance(transition.source.id, list):
+                sourceID = ""
+                for s in transition.source.id:
+                    sourceID += str(s) + "\n"
+                sourceID = sourceID.strip()
+            else:
+                sourceID = str(transition.source.id)
+
+            if isinstance(transition.target.id, list):
+                targetID = ""
+                for s in transition.target.id:
+                    targetID += str(s) + "\n"
+                targetID = targetID.strip()
+            else:
+                targetID = str(transition.target.id)
+
+            g.edge(sourceID, targetID, label=transition.symbol.cid)
 
         g.view()
 
@@ -100,6 +125,8 @@ class Automata():
                 print("\nDirect DFA: ")
             elif "Subset" in this.filename:
                 print("\nSubset DFA: ")
+        elif "Yapar" in this.filename:
+            print("\nYapar: ")
 
         states = Set()
         for state in this.states:
