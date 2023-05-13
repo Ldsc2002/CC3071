@@ -240,9 +240,7 @@ class YaparParser(Automata):
                     addState(nextState)
 
                     # Verify if the state is final
-                    if nextState.type == 2:
+                    if nextState.type.name == "final":
                         this.final.add(nextState)
 
                     this.transitions.add(Transition(state, nextState, Symbol(symbol)))
-
-        print("DONE")

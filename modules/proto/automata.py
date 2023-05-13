@@ -38,7 +38,10 @@ class Automata():
                 nodeText = str(state.id)
 
             if state in this.final:
-                g.node(nodeText, label=nodeText, shape=('double' + this.shape))
+                if this.shape == "circle":
+                    g.node(nodeText, label=nodeText, shape='doublecircle')
+                else:
+                    g.node(nodeText, label=nodeText, shape=this.shape, color='green')
 
                 if state == this.initial:
                     g.node("", shape='none', width='0', height='0')
