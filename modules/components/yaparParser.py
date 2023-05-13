@@ -125,6 +125,7 @@ class YaparParser(Automata):
 
             productions = []
 
+            # Verify if the symbol is in the right side of the production
             for p in production.id:
                 if p.split('.')[1].strip().split(' ')[0] == symbol:
                     left, right = p.split(".")
@@ -137,12 +138,15 @@ class YaparParser(Automata):
                     
                     productions.append(p)
 
+            # If no productions can be derived, return None
             if productions == []:
                 return None
             else:
+                # Verify all new productions
                 for p in productions:
                     right = p.split('.')[1].strip().split(' ')[0].strip()
 
+                    # If the production is not a terminal, check if it can be derived
                     if right not in this.tokens:
                         currentClosure = closure(p)
 
@@ -150,14 +154,17 @@ class YaparParser(Automata):
                             if c not in productions:
                                 productions.append(c)
 
+            # Check if any production is final
             for production in productions:
                 if production.replace('.', '').strip() == initialGrammar.replace('.', '').strip():
                     right = initialGrammar.split('.')[1].strip().split(' ')[0].strip()
                     left = production.split('.')[0].strip().split(' ')[-1].strip()
 
                     if left == right:
+                        # Return final state
                         return State(productions, type=2)
                     
+            # Return new state
             return State(productions, type=1)
         
         def addState(newState):
