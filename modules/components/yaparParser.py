@@ -100,7 +100,7 @@ class YaparParser(Automata):
             productions = [production]
 
             for p1 in productions:
-                for p2 in grammar:
+                for p2 in this.grammar:
                     # If the left side of the production is the same as the right side of the grammar
                     if p1.split('.')[1].strip().split(' ')[0] == p2.split('->')[0].strip():
                         p2 = p2.split('->')
@@ -201,7 +201,7 @@ class YaparParser(Automata):
 
         terminals = this.tokens
         this.symbols = Set()
-        grammar = Set()
+        this.grammar = Set()
         initialGrammar = ""
 
         # Add initial production to the beginning of the productions
@@ -214,13 +214,13 @@ class YaparParser(Automata):
 
             tempProduction = ""
             for p in production:
-                if p not in this.symbols:
+                if p not in this.symbols and p not in ["|", ".", " "]:
                     this.symbols.add(p)
 
                 # If production includes another production, split it and reset tempProduction
                 if p == "|":
                     tempProduction = tempProduction.strip()
-                    grammar.add(token + " -> " + tempProduction)
+                    this.grammar.add(token + " -> " + tempProduction)
                     tempProduction = ". "
                     continue
 
@@ -231,7 +231,7 @@ class YaparParser(Automata):
             if token not in terminals and initialGrammar == "":
                 initialGrammar = token + " -> " + tempProduction
 
-            grammar.add(token + " -> " + tempProduction)
+            this.grammar.add(token + " -> " + tempProduction)
 
         # Create the initial state
         this.initial = State(closure(initialGrammar), type=0) 
@@ -251,3 +251,59 @@ class YaparParser(Automata):
                         this.final.add(nextState)
 
                     this.transitions.add(Transition(state, nextState, Symbol(symbol)))
+
+        # TODO delete this
+        for symbol in this.symbols:
+            print("\n" + symbol)
+            print(this.first(symbol))
+            print(this.follow(symbol))
+
+    def first(this, symbol):
+        """ 
+        PARAMETERS:
+            symbol: symbol to be checked
+        RETURNS:
+            list of symbols that can be derived from the given symbol
+        """  
+
+        if symbol in this.tokens:
+            return [symbol]
+
+        firsts = []
+        for production in this.grammar:
+            if production.split('->')[0].strip() == symbol:
+                right = production.split('->')[1].strip().split(' ')[0].strip()
+
+                if right in this.tokens:
+                    firsts.append(right)
+                else:
+                    firsts += this.first(right)
+
+        return firsts
+    
+    def follow(this, symbol):
+        """ 
+        PARAMETERS:
+            symbol: symbol to be checked
+        RETURNS:
+            list of symbols that can be derived from the given symbol
+        """  
+
+        follows = []
+        for production in this.grammar:
+            right = production.split('->')[1].strip().split(' ')
+            left = production.split('->')[0].strip()
+
+            if symbol in right:
+                index = right.index(symbol) + 1
+
+                if index < len(right):
+                    if right[index] in this.tokens:
+                        follows.append(right[index])
+                    else:
+                        follows += this.first(right[index])
+                else:
+                    if left != symbol:
+                        follows += this.follow(left)
+
+        return follows
