@@ -255,8 +255,8 @@ class YaparParser(Automata):
         # TODO delete this
         for symbol in this.symbols:
             print("\n" + symbol)
-            print(this.first(symbol))
-            print(this.follow(symbol))
+            print("FIRST: ", this.first(symbol))
+            print("FOLLOW: ", this.follow(symbol))
 
     def first(this, symbol):
         """ 
