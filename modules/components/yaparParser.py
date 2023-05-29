@@ -307,3 +307,30 @@ class YaparParser(Automata):
                         follows += this.follow(left)
 
         return follows
+    
+    def buildParsingTable(this):
+        """ 
+        Builds the parsing table
+        """  
+
+        this.parsingTable = {}
+
+        for state in this.states:
+            for production in state.id:
+                if production.split('.')[1].strip() == "":
+                    for symbol in this.follow(production.split('.')[0].strip()):
+                        this.parsingTable[(state, symbol)] = production.split('.')[0].strip() + " -> " + production.split('.')[0].strip()
+                else:
+                    right = production.split('.')[1].strip().split(' ')[0].strip()
+
+                    if right in this.tokens:
+                        this.parsingTable[(state, right)] = production.split('.')[0].strip() + " -> " + production.split('.')[0].strip()
+                    else:
+                        for symbol in this.first(right):
+                            this.parsingTable[(state, symbol)] = production.split('.')[0].strip() + " -> " + production.split('.')[0].strip()
+
+        print("\nParsing Table")
+        for key, value in this.parsingTable.items():
+            keys = str(key[0].id) + " " + key[1]
+
+            print(keys, ":", value)
