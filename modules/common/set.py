@@ -18,7 +18,13 @@ class Set():
             this.add(e)
 
     def difference(this, other):
-        return Set([e for e in this.elements if e not in other.elements])
+        difference = Set()
+
+        for e in this.elements:
+            if e not in other.elements:
+                difference.add(e)
+
+        return difference
 
     def peek(this):
         return this.elements[-1]

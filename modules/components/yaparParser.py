@@ -176,6 +176,7 @@ class YaparParser(Automata):
             """
 
             equal = True
+            state = None
             
             for state in this.states:
                 for s in state.id:
@@ -197,7 +198,11 @@ class YaparParser(Automata):
                     equal = True
 
             if not equal:
-                this.states.append(newState)
+                this.states.append(newState)     
+                return newState               
+
+            else:
+                return state
 
         terminals = this.tokens
         this.symbols = Set()
@@ -244,7 +249,7 @@ class YaparParser(Automata):
                 nextState = goto(state, symbol)
 
                 if nextState != None:
-                    addState(nextState)
+                    nextState = addState(nextState)
 
                     # Verify if the state is final
                     if nextState.type.name == "final":
@@ -252,11 +257,8 @@ class YaparParser(Automata):
 
                     this.transitions.add(Transition(state, nextState, Symbol(symbol)))
 
-        # TODO delete this
-        for symbol in this.symbols:
-            print("\n" + symbol)
-            print("FIRST: ", this.first(symbol))
-            print("FOLLOW: ", this.follow(symbol))
+        for i in range(len(this.states)):
+            this.states[i].tokenID = i + 1
 
     def first(this, symbol):
         """ 
@@ -306,31 +308,64 @@ class YaparParser(Automata):
                     if left != symbol:
                         follows += this.follow(left)
 
-        return follows
+        # DELETE DUPLICATES
+        newFollows = []
+        for follow in follows:
+            if follow not in newFollows:
+                newFollows.append(follow)
+
+        return newFollows
     
     def buildParsingTable(this):
         """ 
         Builds the parsing table
         """  
 
-        this.parsingTable = {}
+        terminals = this.tokens + ["$"]
+        nonTerminals = this.symbols.difference(Set(this.tokens))
+        goToTable = {}
+        actionTable = {}
+        stateIDs = {}
 
         for state in this.states:
-            for production in state.id:
-                if production.split('.')[1].strip() == "":
-                    for symbol in this.follow(production.split('.')[0].strip()):
-                        this.parsingTable[(state, symbol)] = production.split('.')[0].strip() + " -> " + production.split('.')[0].strip()
+            goToTable[state.tokenID] = {}
+            actionTable[state.tokenID] = {}
+
+            stateIDs[state.tokenID] = state
+
+        for transition in this.transitions:
+            if transition.source.tokenID not in goToTable:
+                goToTable[transition.source.tokenID] = {}
+
+            if transition.source.tokenID not in actionTable:
+                actionTable[transition.source.tokenID] = {}
+
+            if transition.symbol.id in nonTerminals:
+                if goToTable[transition.source.tokenID].get(transition.symbol.id) == None:
+                    goToTable[transition.source.tokenID][transition.symbol.id] = transition.target.tokenID
                 else:
-                    right = production.split('.')[1].strip().split(' ')[0].strip()
+                    raise Exception("Grammar is not SLR(1)")
+                
+            if transition.symbol.id in terminals:
+                if actionTable[transition.source.tokenID].get(transition.symbol.id) == None:
+                    actionTable[transition.source.tokenID][transition.symbol.id] = "S" + str(transition.target.tokenID)
+                else:
+                    raise Exception("Grammar is not SLR(1)")
+                
+        for i in range(len(this.states)):
+            state = this.states[i]
 
-                    if right in this.tokens:
-                        this.parsingTable[(state, right)] = production.split('.')[0].strip() + " -> " + production.split('.')[0].strip()
+            for production in state.id:
+                if production.split('->')[0].strip() == this.initial.id[0].split('->')[0].strip():
+                    if actionTable[state.tokenID].get("$") == None:
+                        actionTable[state.tokenID]["$"] = "ACCEPT"
                     else:
-                        for symbol in this.first(right):
-                            this.parsingTable[(state, symbol)] = production.split('.')[0].strip() + " -> " + production.split('.')[0].strip()
-
-        print("\nParsing Table")
-        for key, value in this.parsingTable.items():
-            keys = str(key[0].id) + " " + key[1]
-
-            print(keys, ":", value)
+                        raise Exception("Grammar is not SLR(1)")
+                
+                if production == state.id[-1] and production.endswith("."):
+                    for symbol in this.follow(production.split('->')[0].strip()):
+                        if symbol in terminals:
+                            if actionTable[state.tokenID].get(symbol) == None:
+                                actionTable[state.tokenID][symbol] = "R" + str(list(this.productions.keys()).index(production.split('->')[0].strip()))
+                            else:
+                                raise Exception("Grammar is not SLR(1)")
