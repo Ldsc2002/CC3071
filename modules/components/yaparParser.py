@@ -11,6 +11,7 @@ class YaparParser(Automata):
 
     def parse(this):            
         tokens = []
+        ignore = []
         productions = {}
         readingTokens = True
         prevProduction = None
@@ -32,7 +33,18 @@ class YaparParser(Automata):
                     continue
 
                 if line != '':
-                    if readingTokens:
+                    if line.startswith("IGNORE"):
+                        line = line.replace("IGNORE", "")
+                        line = line.strip()
+
+                        if line.count(' ') > 0:
+                            line = line.split(' ')
+                            for token in line:
+                                ignore.append(token)
+                        else:
+                            ignore.append(line)
+
+                    elif readingTokens:
                         if line == '%%':
                             readingTokens = False
                             continue
@@ -86,6 +98,7 @@ class YaparParser(Automata):
 
 
         this.tokens = tokens
+        this.ignore = ignore
         this.productions = productions
 
     def parseSLR(this):
@@ -258,7 +271,7 @@ class YaparParser(Automata):
                     this.transitions.add(Transition(state, nextState, Symbol(symbol)))
 
         for i in range(len(this.states)):
-            this.states[i].tokenID = i + 1
+            this.states[i].tokenID = i
 
     def first(this, symbol):
         """ 
@@ -322,10 +335,14 @@ class YaparParser(Automata):
         """  
 
         terminals = this.tokens + ["$"]
-        nonTerminals = this.symbols.difference(Set(this.tokens))
+        nonTerminals = this.symbols.difference(terminals)
         goToTable = {}
         actionTable = {}
         stateIDs = {}
+
+        for s in terminals:
+            if s in this.ignore:
+                terminals.remove(s)
 
         for state in this.states:
             goToTable[state.tokenID] = {}
@@ -352,13 +369,15 @@ class YaparParser(Automata):
                 else:
                     raise Exception("Grammar is not SLR(1)")
                 
+        accepted = False
         for i in range(len(this.states)):
             state = this.states[i]
 
             for production in state.id:
-                if production.split('->')[0].strip() == this.initial.id[0].split('->')[0].strip():
+                if not accepted and production.split('->')[0].strip() == this.initial.id[0].split('->')[0].strip():
                     if actionTable[state.tokenID].get("$") == None:
                         actionTable[state.tokenID]["$"] = "ACCEPT"
+                        accepted = True
                     else:
                         raise Exception("Grammar is not SLR(1)")
                 
@@ -378,8 +397,7 @@ class YaparParser(Automata):
 
     def print(this):
         # Print the goto table
-        print("\nGOTO TABLE:")
-        print("State\t", end="")
+        print("\t", end="")
         for symbol in this.nonTerminals:
             print(symbol + "\t", end="")
         print()
@@ -394,8 +412,7 @@ class YaparParser(Automata):
             print()
 
         # Print the action table
-        print("\nACTION TABLE:")
-        print("State\t", end="")
+        print("\t", end="")
         for symbol in this.terminals:
             print(symbol + "\t", end="")
         print()

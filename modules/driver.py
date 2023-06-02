@@ -37,7 +37,7 @@ def readYapar(yalex, yapar, simulate, delete = True):
 
     yalex = YalexParser(yalex)
     yapar = YaparParser(yapar, yalex)
-    yapar.createImage()
+    # yapar.createImage()
     yapar.buildParsingTable()
     yapar.print()
     yapar.simulate(simulate)

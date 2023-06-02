@@ -21,7 +21,7 @@ class Set():
         difference = Set()
 
         for e in this.elements:
-            if e not in other.elements:
+            if e not in other:
                 difference.add(e)
 
         return difference
