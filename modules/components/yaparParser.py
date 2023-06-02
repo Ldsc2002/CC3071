@@ -1,4 +1,5 @@
 from modules.proto.automata import *
+from prettytable import PrettyTable
 
 class YaparParser(Automata):
     def __init__(this, file, yalex):
@@ -223,7 +224,7 @@ class YaparParser(Automata):
         initialGrammar = ""
 
         # Add initial production to the beginning of the productions
-        newItem = {list(this.productions.keys())[0] + "'": [this.productions[list(this.productions.keys())[0]][0]]}
+        newItem = {list(this.productions.keys())[0] + "'": [list(this.productions.keys())[0]]}
         this.productions = {**newItem, **this.productions}
 
         # Format the productions to be in the form of A -> . a b c and find the initial state
@@ -369,15 +370,13 @@ class YaparParser(Automata):
                 else:
                     raise Exception("Grammar is not SLR(1)")
                 
-        accepted = False
-        for i in range(len(this.states)):
+        for i in range(1, len(this.states)):
             state = this.states[i]
 
             for production in state.id:
-                if not accepted and production.split('->')[0].strip() == this.initial.id[0].split('->')[0].strip():
+                if production.replace(".", "").strip() == this.initial.id[0].replace(".", "").strip():
                     if actionTable[state.tokenID].get("$") == None:
                         actionTable[state.tokenID]["$"] = "ACCEPT"
-                        accepted = True
                     else:
                         raise Exception("Grammar is not SLR(1)")
                 
@@ -396,35 +395,31 @@ class YaparParser(Automata):
 
 
     def print(this):
-        # Print the goto table
-        print("\t", end="")
-        for symbol in this.nonTerminals:
-            print(symbol + "\t", end="")
-        print()
-
-        for stateID, state in this.goToTable.items():
-            print(str(stateID) + "\t", end="")
+        goToTable = PrettyTable()
+        goToTable.field_names = [""] + list(this.nonTerminals)
+        for state in this.goToTable:
+            row = []
             for symbol in this.nonTerminals:
-                if symbol in state:
-                    print(str(state[symbol]) + "\t", end="")
+                if this.goToTable[state].get(symbol) == None:
+                    row.append("None")
                 else:
-                    print("\t", end="")
-            print()
+                    row.append(this.goToTable[state][symbol])
+            goToTable.add_row([state] + row)
+        print("GOTO TABLE")
+        print(goToTable)
 
-        # Print the action table
-        print("\t", end="")
-        for symbol in this.terminals:
-            print(symbol + "\t", end="")
-        print()
-
-        for stateID, state in this.actionTable.items():
-            print(str(stateID) + "\t", end="")
+        actionTable = PrettyTable()
+        actionTable.field_names = [""] + list(this.terminals)
+        for state in this.actionTable:
+            row = []
             for symbol in this.terminals:
-                if symbol in state:
-                    print(str(state[symbol]) + "\t", end="")
+                if this.actionTable[state].get(symbol) == None:
+                    row.append("None")
                 else:
-                    print("\t", end="")
-            print()
+                    row.append(this.actionTable[state][symbol])
+            actionTable.add_row([state] + row)
+        print("ACTION TABLE")
+        print(actionTable)
         
     def simulate(this, word, printResult = True):
         """ 
