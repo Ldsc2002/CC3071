@@ -369,3 +369,43 @@ class YaparParser(Automata):
                                 actionTable[state.tokenID][symbol] = "R" + str(list(this.productions.keys()).index(production.split('->')[0].strip()))
                             else:
                                 raise Exception("Grammar is not SLR(1)")
+                            
+        this.goToTable = goToTable
+        this.actionTable = actionTable
+        this.terminals = terminals
+        this.nonTerminals = nonTerminals
+
+
+    def print(this):
+        # Print the goto table
+        print("\nGOTO TABLE:")
+        print("State\t", end="")
+        for symbol in this.nonTerminals:
+            print(symbol + "\t", end="")
+        print()
+
+        for stateID, state in this.goToTable.items():
+            print(str(stateID) + "\t", end="")
+            for symbol in this.nonTerminals:
+                if symbol in state:
+                    print(str(state[symbol]) + "\t", end="")
+                else:
+                    print("\t", end="")
+            print()
+
+        # Print the action table
+        print("\nACTION TABLE:")
+        print("State\t", end="")
+        for symbol in this.terminals:
+            print(symbol + "\t", end="")
+        print()
+
+        for stateID, state in this.actionTable.items():
+            print(str(stateID) + "\t", end="")
+            for symbol in this.terminals:
+                if symbol in state:
+                    print(str(state[symbol]) + "\t", end="")
+                else:
+                    print("\t", end="")
+            print()
+        
