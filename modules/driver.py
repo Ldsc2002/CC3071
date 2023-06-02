@@ -28,7 +28,7 @@ def readYalex(file, delete = True):
     tree = RegexTree(postfix, file.split("/")[-1])
     tree.printTree()
 
-def readYapar(yalex, yapar, delete = True):
+def readYapar(yalex, yapar, simulate, delete = True):
     if delete: 
         checkFolder("out/")
         deleteAllFiles("out/")
@@ -40,6 +40,7 @@ def readYapar(yalex, yapar, delete = True):
     yapar.createImage()
     yapar.buildParsingTable()
     yapar.print()
+    yapar.simulate(simulate)
 
 def generateFromYalex(file):
     checkFolder("out/")

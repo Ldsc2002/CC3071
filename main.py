@@ -14,10 +14,14 @@ yaparOptions = [
     "data/4.yalp",
 ]
 
+simulatorOptions = [
+    "data/input1T.txt",
+]
+
 if __name__ == '__main__':
     if isDebugging():
         selected = menuInput(yaparOptions, "Select a yapar file to test")
-        readYapar(yalexOptions[selected - 1], yaparOptions[selected - 1])
+        readYapar(yalexOptions[selected - 1], yaparOptions[selected - 1], simulatorOptions[selected - 1])
     
     else:
         pass

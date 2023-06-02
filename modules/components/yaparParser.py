@@ -409,3 +409,56 @@ class YaparParser(Automata):
                     print("\t", end="")
             print()
         
+    def simulate(this, word, printResult = True):
+        """ 
+        PARAMETERS:
+            word: word to be simulated
+            printResult: if true, prints the result of the simulation
+        RETURNS:
+            True if the word is accepted, False otherwise
+        """  
+
+        stack = [1]
+        word = word.split(' ')
+        word.append("$")
+        index = 0
+        result = True
+
+        while True:
+            state = stack[-1]
+            symbol = word[index]
+
+            if this.actionTable[state].get(symbol) == None:
+                result = False
+                break
+
+            action = this.actionTable[state][symbol]
+
+            if action == "ACCEPT":
+                break
+
+            if action[0] == "S":
+                stack.append(symbol)
+                stack.append(int(action[1:]))
+                index += 1
+            elif action[0] == "R":
+                production = this.productions[int(action[1:])]
+                left = production.split('->')[0].strip()
+                right = production.split('->')[1].strip().split(' ')
+
+                for i in range(len(right) * 2):
+                    stack.pop()
+
+                stack.append(left)
+                stack.append(this.goToTable[stack[-2]][stack[-1]])
+            else:
+                result = False
+                break
+
+        if printResult:
+            if result:
+                print("\nWord accepted")
+            else:
+                print("\nWord not accepted")
+
+        return result
