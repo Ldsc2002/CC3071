@@ -304,8 +304,11 @@ class YaparParser(Automata):
         RETURNS:
             list of symbols that can be derived from the given symbol
         """  
-
         follows = []
+
+        if symbol == list(this.productions.keys())[1]:
+            follows.append("$")
+
         for production in this.grammar:
             right = production.split('->')[1].strip().split(' ')
             left = production.split('->')[0].strip()
@@ -380,11 +383,17 @@ class YaparParser(Automata):
                     else:
                         raise Exception("Grammar is not SLR(1)")
                 
-                if production == state.id[-1] and production.endswith("."):
+                if production.endswith("."):
+                    test = this.follow(production.split('->')[0].strip())
+                    print(production.split('->')[0].strip(), test)
                     for symbol in this.follow(production.split('->')[0].strip()):
                         if symbol in terminals:
                             if actionTable[state.tokenID].get(symbol) == None:
-                                actionTable[state.tokenID][symbol] = "R" + str(list(this.productions.keys()).index(production.split('->')[0].strip()))
+                                for index in range(len(this.initial.id)):
+                                    s = this.initial.id[index]
+                                    if s.replace(".", "").replace(" ", "").strip() == production.replace(".", "").replace(" ", "").strip():
+                                        actionTable[state.tokenID][symbol] = "R" + str(index)
+                                        index = len(this.initial.id)
                             else:
                                 raise Exception("Grammar is not SLR(1)")
                             
@@ -392,7 +401,6 @@ class YaparParser(Automata):
         this.actionTable = actionTable
         this.terminals = terminals
         this.nonTerminals = nonTerminals
-
 
     def print(this):
         goToTable = PrettyTable()
