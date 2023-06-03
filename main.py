@@ -28,6 +28,6 @@ if __name__ == '__main__':
         selected = menuInput(yaparOptions, "Select a yapar file to test")
         testFile = menuInput(simulatorOptions, "Select a test file to test")
 
-        readYapar(yalexOptions[selected - 1], yaparOptions[selected - 1], simulatorOptions[selected - 1])    
+        readYapar(yalexOptions[selected - 1], yaparOptions[selected - 1], simulatorOptions[testFile - 1])    
     else:
         pass

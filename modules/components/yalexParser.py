@@ -460,12 +460,13 @@ class YalexParser():
                     valid += symbol
                     print('Valid token found: ' + valid)
 
-                    if symbol in transitionsDict[current]:
-                        current = transitionsDict[current][symbol]
-                    else:
-                        current = transitionsDict[current]["'" + str(ord(symbol)) + "'"]
-                    
-                    result.append(executeToken(statesDict[current]))
+                    if symbol in transitionsDict[current] or ("'" + str(ord(symbol)) + "'") in transitionsDict[current]:    
+                        if symbol in transitionsDict[current]:
+                            current = transitionsDict[current][symbol]
+                        else:
+                            current = transitionsDict[current]["'" + str(ord(symbol)) + "'"]
+                        
+                        result.append(executeToken(statesDict[current]))
             else:
                 valid += symbol
 
