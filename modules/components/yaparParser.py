@@ -429,56 +429,59 @@ class YaparParser(Automata):
         print("ACTION TABLE")
         print(actionTable)
         
-    def simulate(this, word, printResult = True):
+    def simulate(this, data, printResult = True):
         """ 
         PARAMETERS:
-            word: word to be simulated
-            printResult: if true, prints the result of the simulation
+            data: array of tokens to be simulated
+            printResult: if true, prints the final result of the simulation
         RETURNS:
             True if the word is accepted, False otherwise
-        """  
-
-        stack = [1]
-        word = word.split(' ')
-        word.append("$")
-        index = 0
-        result = True
-
+        """
+        stack = [this.initial.tokenID]
+        
         while True:
             state = stack[-1]
-            symbol = word[index]
 
-            if this.actionTable[state].get(symbol) == None:
-                result = False
-                break
+            if data:
+                symbol = data[0]
+            else:
+                symbol = "$"
+            
+            currentAction = this.actionTable[state].get(symbol)
 
-            action = this.actionTable[state][symbol]
+            if currentAction == None:
+                if printResult:
+                    print("Word not accepted")
+                return False
+            
+            if currentAction.startswith("S"):
+                nextID = int(currentAction[1:])
+                nextState = this.states[nextID].tokenID
+                stack.append(nextState)
+                data = data[1:]
 
-            if action == "ACCEPT":
-                break
-
-            if action[0] == "S":
-                stack.append(symbol)
-                stack.append(int(action[1:]))
-                index += 1
-            elif action[0] == "R":
-                production = this.productions[int(action[1:])]
+            elif currentAction.startswith("R"):
+                productionID = int(currentAction[1:])
+                production = this.initial.id[productionID]
                 left = production.split('->')[0].strip()
                 right = production.split('->')[1].strip().split(' ')
 
-                for i in range(len(right) * 2):
+                for i in range(len(right)):
+                    if right[i] == ".":
+                        continue
                     stack.pop()
 
-                stack.append(left)
-                stack.append(this.goToTable[stack[-2]][stack[-1]])
-            else:
-                result = False
-                break
+                state = stack[-1]
+                stack.append(this.goToTable[state][left])
 
-        if printResult:
-            if result:
-                print("\nWord accepted")
+            elif currentAction == "ACCEPT":
+                if printResult:
+                    print("Word accepted")
+                return True
+            
             else:
-                print("\nWord not accepted")
+                if printResult:
+                    print("Word not accepted")
+                return False
 
-        return result
+        

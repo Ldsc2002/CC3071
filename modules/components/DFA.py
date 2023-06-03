@@ -4,6 +4,8 @@ from modules.components.regexTree import *
 
 class DFA(Automata):
     def __init__(this, regex, filename):
+        this.shape = "circle"
+
         if isinstance(regex, RegexTree):
             this.filename = "DFA_Direct_(" + filename + ")"
             this.directConstruction(regex.tree)

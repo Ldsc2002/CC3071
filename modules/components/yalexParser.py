@@ -415,3 +415,49 @@ class YalexParser():
         this.tokens = rules
 
         return regex
+    
+    def simulate(this, file, dfa, tokens):
+        def executeToken(token):
+            for t in tokens:
+                if t == token:
+                    return tokens[t].replace("return ", "")
+        
+        data = open(file, 'r').read()
+
+        statesDict = {}
+        for state in dfa.states:
+            statesDict[state.id] = state.tokenID
+
+        finalsArray = []
+        for state in dfa.final:
+            finalsArray.append(state.id)
+
+        transitionsDict = {}
+        for transition in dfa.transitions:
+            if transition.source.id not in transitionsDict:
+                transitionsDict[transition.source.id] = {}
+            transitionsDict[transition.source.id][transition.symbol.cid] = transition.target.id
+
+        current = 0
+        valid = ''
+        result = []
+
+        for i in range(len(data)):
+            symbol = data[i]
+            
+            if symbol not in transitionsDict[current]:
+                if len(valid) > 0:
+                    print('Valid token found: ' + valid)
+                    result.append(executeToken(statesDict[current]))
+                current = 0
+                valid = ''
+                print('Invalid symbol found: ' + symbol)
+            else:
+                valid += symbol
+                current = transitionsDict[current][symbol]
+
+                if i == len(data) - 1:
+                    print('Valid token found: ' + valid)
+                    result.append(executeToken(statesDict[current]))
+
+        return result

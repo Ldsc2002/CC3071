@@ -28,19 +28,28 @@ def readYalex(file, delete = True):
     tree = RegexTree(postfix, file.split("/")[-1])
     tree.printTree()
 
-def readYapar(yalex, yapar, simulate, delete = True):
+def readYapar(yalexFile, yaparFile, simulateFile, delete = True):
     if delete: 
         checkFolder("out/")
         deleteAllFiles("out/")
 
     print("\n ----- Reading Yapar file -----")
 
-    yalex = YalexParser(yalex)
-    yapar = YaparParser(yapar, yalex)
+    yalex = YalexParser(yalexFile)
+    regex = Regex(yalex.regex, yalex.alphabet)
+    tree = RegexTree(regex.postfix, yalexFile.split("/")[-1], True)
+    # tree.printTree()
+
+    newDFA = DFA(tree, yalexFile.split("/")[-1])
+    # newDFA.createImage()
+    yalexSimulation = yalex.simulate(simulateFile, newDFA, yalex.tokens)
+
+    yapar = YaparParser(yaparFile, yalex)
     # yapar.createImage()
     yapar.buildParsingTable()
     yapar.print()
-    yapar.simulate(simulate)
+    yaparSimulation = yapar.simulate(yalexSimulation)
+    print("\nYapar Simulation: " + str(yaparSimulation))
 
 def generateFromYalex(file):
     checkFolder("out/")
