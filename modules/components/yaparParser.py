@@ -384,8 +384,6 @@ class YaparParser(Automata):
                         raise Exception("Grammar is not SLR(1)")
                 
                 if production.endswith("."):
-                    test = this.follow(production.split('->')[0].strip())
-                    print(production.split('->')[0].strip(), test)
                     for symbol in this.follow(production.split('->')[0].strip()):
                         if symbol in terminals:
                             if actionTable[state.tokenID].get(symbol) == None:
@@ -413,7 +411,7 @@ class YaparParser(Automata):
                 else:
                     row.append(this.goToTable[state][symbol])
             goToTable.add_row([state] + row)
-        print("GOTO TABLE")
+        print("\nGOTO TABLE")
         print(goToTable)
 
         actionTable = PrettyTable()
@@ -426,7 +424,7 @@ class YaparParser(Automata):
                 else:
                     row.append(this.actionTable[state][symbol])
             actionTable.add_row([state] + row)
-        print("ACTION TABLE")
+        print("\nACTION TABLE")
         print(actionTable)
         
     def simulate(this, data, printResult = True):

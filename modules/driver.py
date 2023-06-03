@@ -33,23 +33,22 @@ def readYapar(yalexFile, yaparFile, simulateFile, delete = True):
         checkFolder("out/")
         deleteAllFiles("out/")
 
-    print("\n ----- Reading Yapar file -----")
+    print("\n ----- Parsing SLR(1) -----")
 
     yalex = YalexParser(yalexFile)
     regex = Regex(yalex.regex, yalex.alphabet)
     tree = RegexTree(regex.postfix, yalexFile.split("/")[-1], True)
-    # tree.printTree()
+    tree.printTree()
 
     newDFA = DFA(tree, yalexFile.split("/")[-1])
-    # newDFA.createImage()
+    newDFA.createImage()
     yalexSimulation = yalex.simulate(simulateFile, newDFA, yalex.tokens)
 
     yapar = YaparParser(yaparFile, yalex)
-    # yapar.createImage()
+    yapar.createImage()
     yapar.buildParsingTable()
     yapar.print()
-    yaparSimulation = yapar.simulate(yalexSimulation)
-    print("\nYapar Simulation: " + str(yaparSimulation))
+    yapar.simulate(yalexSimulation)
 
 def generateFromYalex(file):
     checkFolder("out/")
