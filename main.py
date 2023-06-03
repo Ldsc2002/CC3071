@@ -3,11 +3,13 @@ from modules.driver import isDebugging, isDebugging, menuInput, readYapar
 yalexOptions = [
     "data/1.yal",
     "data/3.yal",
+    "data/labF.yal",
 ]
 
 yaparOptions = [
     "data/1.yalp",
     "data/3.yalp",
+    "data/labF.yalp",
 ]
 
 simulatorOptions = [
@@ -16,6 +18,9 @@ simulatorOptions = [
     "data/1Tc.txt",
     "data/1Td.txt",
     "data/1Te.txt",
+    "data/3Fa.txt",
+    "data/3Fb.txt",
+    "data/3Fc.txt",
 ]
 
 if __name__ == '__main__':
