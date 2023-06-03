@@ -297,13 +297,16 @@ class YaparParser(Automata):
 
         return firsts
     
-    def follow(this, symbol):
+    def follow(this, symbol, iter = 0):
         """ 
         PARAMETERS:
             symbol: symbol to be checked
         RETURNS:
             list of symbols that can be derived from the given symbol
         """  
+        if iter > 100:
+            return []
+        
         follows = []
 
         if symbol == list(this.productions.keys())[1]:
@@ -323,7 +326,7 @@ class YaparParser(Automata):
                         follows += this.first(right[index])
                 else:
                     if left != symbol:
-                        follows += this.follow(left)
+                        follows += this.follow(left, iter + 1)
 
         # DELETE DUPLICATES
         newFollows = []
@@ -393,7 +396,11 @@ class YaparParser(Automata):
                                         actionTable[state.tokenID][symbol] = "R" + str(index)
                                         index = len(this.initial.id)
                             else:
-                                raise Exception("Grammar is not SLR(1)")
+                                for index in range(len(this.initial.id)):
+                                    s = this.initial.id[index]
+                                    if s.replace(".", "").replace(" ", "").strip() == production.replace(".", "").replace(" ", "").strip():
+                                        print("Conflict in [" + str(state.tokenID) + ", " + symbol + "] = (" + actionTable[state.tokenID][symbol] + ",  R" + str(index) + ")")
+                                        raise Exception("Conflict in [" + str(state.tokenID) + ", " + symbol + "] = (" + actionTable[state.tokenID][symbol] + ",  R" + str(index) + ")")
                             
         this.goToTable = goToTable
         this.actionTable = actionTable
