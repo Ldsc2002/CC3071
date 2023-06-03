@@ -422,6 +422,7 @@ class YalexParser():
                 if t == token:
                     return tokens[t].replace("return ", "")
         
+        print("\nSimulating input file: " + file)
         data = open(file, 'r').read()
 
         statesDict = {}

@@ -40,14 +40,14 @@ def readYapar(yalexFile, yaparFile, simulateFile, delete = True):
     tree = RegexTree(regex.postfix, yalexFile.split("/")[-1], True)
     tree.printTree()
 
-    newDFA = DFA(tree, yalexFile.split("/")[-1])
-    newDFA.createImage()
-    yalexSimulation = yalex.simulate(simulateFile, newDFA, yalex.tokens)
-
     yapar = YaparParser(yaparFile, yalex)
     yapar.createImage()
     yapar.buildParsingTable()
     yapar.print()
+
+    newDFA = DFA(tree, yalexFile.split("/")[-1])
+    newDFA.createImage()
+    yalexSimulation = yalex.simulate(simulateFile, newDFA, yalex.tokens)
     yapar.simulate(yalexSimulation)
 
 def generateFromYalex(file):
