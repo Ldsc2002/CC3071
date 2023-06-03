@@ -451,7 +451,7 @@ class YaparParser(Automata):
 
             if currentAction == None:
                 if printResult:
-                    print("Word not accepted")
+                    print("\nWord not accepted")
                 return False
             
             if currentAction.startswith("S"):
@@ -476,12 +476,12 @@ class YaparParser(Automata):
 
             elif currentAction == "ACCEPT":
                 if printResult:
-                    print("Word accepted")
+                    print("\nWord accepted")
                 return True
             
             else:
                 if printResult:
-                    print("Word not accepted")
+                    print("\nWord not accepted")
                 return False
 
         

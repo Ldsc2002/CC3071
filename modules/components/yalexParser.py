@@ -444,17 +444,34 @@ class YalexParser():
 
         for i in range(len(data)):
             symbol = data[i]
+
+            if symbol == ")":
+                print('Valid token found: ' + valid)
             
-            if symbol not in transitionsDict[current]:
+            if current not in transitionsDict or (symbol not in transitionsDict[current] and ("'" + str(ord(symbol)) + "'") not in transitionsDict[current]):
                 if len(valid) > 0:
                     print('Valid token found: ' + valid)
                     result.append(executeToken(statesDict[current]))
                 current = 0
                 valid = ''
-                print('Invalid symbol found: ' + symbol)
+                
+                if i == len(data) - 1:
+                    valid += symbol
+                    print('Valid token found: ' + valid)
+
+                    if symbol in transitionsDict[current]:
+                        current = transitionsDict[current][symbol]
+                    else:
+                        current = transitionsDict[current]["'" + str(ord(symbol)) + "'"]
+                    
+                    result.append(executeToken(statesDict[current]))
             else:
                 valid += symbol
-                current = transitionsDict[current][symbol]
+
+                if symbol in transitionsDict[current]:
+                    current = transitionsDict[current][symbol]
+                else:
+                    current = transitionsDict[current]["'" + str(ord(symbol)) + "'"]
 
                 if i == len(data) - 1:
                     print('Valid token found: ' + valid)
